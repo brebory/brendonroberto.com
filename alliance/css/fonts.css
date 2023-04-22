@@ -1,0 +1,23 @@
+@font-face {
+	font-family: "Brandon Grotesque"
+	font-weight: 400
+	src: "fonts/Brandon_reg.otf"
+}
+
+@font-face {
+	font-family: "Brandon Grotesque"
+	font-weight: 100
+	src: "fonts/Brandon_light.otf"
+}
+
+@font-face {
+	font-family: "Brandon Grotesque"
+	font-weight: 700
+	src: "fonts/Brandon_bld.otf"
+}
+
+@font-face {
+	font-family: "Brandon Grotesque"
+	font-weight: 900
+	src: "fonts/Brandon_blk.otf"
+}

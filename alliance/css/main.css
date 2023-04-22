@@ -1,0 +1,125 @@
+html, body, h1 {
+	font-family: "Brandon Grotesque", "Raleway", "Helvetica Neue", sans-serif;
+}
+
+h1, h2, h3 {
+	color: inherit;
+}
+
+.article-heading, .lead, .name {
+	text-transform: uppercase;
+}
+
+.name {
+	text-align: center;
+}
+
+.top-bar {
+	background-color: rgb(255, 241, 179);
+	background: #ffffe6; /* Old browsers */
+	background: -moz-linear-gradient(top, #ffffe6 0%, #fff1b3 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffe6), color-stop(100%,#fff1b3)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #ffffe6 0%,#fff1b3 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #ffffe6 0%,#fff1b3 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, #ffffe6 0%,#fff1b3 100%); /* IE10+ */
+	background: linear-gradient(to bottom, #ffffe6 0%,#fff1b3 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffe6', endColorstr='#fff1b3',GradientType=0 ); /* IE6-9 */
+	margin: 0;
+
+	height: 3em;
+}
+
+.top-bar .name h1 a {
+	color: rgb(35, 43, 51);
+}
+
+.hero-panel {
+	padding: 12em;
+}
+
+#hp-2 {
+	padding: 14em;
+}
+
+#hp-3 {
+	padding: 16em;
+}
+
+.hero-panel h1 {
+	text-align: center;
+	font-size: 1.5em;
+}
+
+.dark {
+	background-color: rgb(36, 43, 51);
+}
+
+.dark h1, .dark p {
+	color: white; 
+}
+
+.light {
+	background-color: rgb(255, 241, 179);
+}
+
+.light h1, .light p {
+	color: rgb(36, 43, 51);
+}
+
+.monster-background {
+	height: 500px;
+	background-image: url("../images/studio-alliance-monster-illustration.png");
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.advance-button {
+	display: block;
+	width: 100px;
+	height: 100px;
+	margin: 0 auto;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.dark .advance-button {
+	background-image: url("../images/studio-alliance-down-arrow-gold.png");
+}
+
+.light .advance-button {
+	background-image: url("../images/studio-alliance-down-arrow-gray.png");
+}
+
+.advance-button.ab-top {
+	background-image: url("../images/studio-alliance-up-arrow-gray.png");
+}
+
+.footer-info {
+	text-align: center;
+}
+
+.story {
+	margin-top: 2em;
+}
+
+.thumbs-up {
+	margin-top: 2em;
+}
+
+.icon-logo {
+	background-image: url("../images/studio-alliance-logo.png");
+	display: inline-block;
+	margin-top: .5em;
+	height: 30px;
+	width: 135px;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+#hp-3 img + p {
+	margin-top: 2em;
+}
+
+section.row {
+	margin-bottom: 2em;
+}
