@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fiber's first month · Brendon Roberto</title>
 <meta name="description" content="The first month of Fiber: a Godot starter project, Kenney placeholder art, a player state machine, one-way platforms, tests in CI and maps that connect.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Brendon Roberto">
+<meta property="og:title" content="Fiber&#x27;s first month">
+<meta property="og:description" content="The first month of Fiber: a Godot starter project, Kenney placeholder art, a player state machine, one-way platforms, tests in CI and maps that connect.">
+<meta property="og:url" content="https://brendonroberto.com/blog/fiber-first-steps/">
+<meta property="og:image" content="https://brendonroberto.com/img/og/fiber-first-steps.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://brendonroberto.com/blog/fiber-first-steps/">
+<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
@@ -19,14 +30,14 @@
 </header>
 
 <main class="post">
-	<p class="lede">A month ago, a few friends and I started a game under the name Snackpack Games. It’s called <strong>Fiber</strong>, and right now it looks nothing like what we have in mind. That’s on purpose.</p>
+	<p class="lede">A month ago, my friend Stephen Cassidy and I started a game under the name Snackpack Games. It’s called <strong>Fiber</strong>, and right now it looks nothing like what we have in mind. That’s on purpose.</p>
 
 	<h2>The pitch, from the README</h2>
 	<p>The first commit landed on October 16. The README pitched a 2D platformer for squads of four, with paper and collage art. You’d craft gear and skills from materials you find, open gates with keys you crafted, and work through dungeons room by room, with a random encounter in each room. Towns would act as guild hubs, and the folk you rescue could move in and offer buffs and recipes. Power would come from crafting more than from leveling: less grinding for experience, more grinding for materials.</p>
 	<p>None of that exists yet. What exists is a character who can run and jump.</p>
 
 	<h2>Start from something that runs</h2>
-	<p>The project literally started as Godot’s official 2D tutorial, “Dodge the Creeps”, and the README admitted it still had a lot of tutorial files lying around. That was a fine place to begin: a working main scene, a player, enemies on a timer and a score. From there we swapped the top-down dodger for a side-on platformer and pulled in <a href="https://kenney.nl/">Kenney</a>’s free platformer art as placeholder. Kenney’s packs are the reason prototypes like this can look friendly on day one.</p>
+	<p>The project literally started as <a href="https://godotengine.org/">Godot</a>’s official 2D tutorial, “Dodge the Creeps”, and the README admitted it still had a lot of tutorial files lying around. That was a fine place to begin: a working main scene, a player, enemies on a timer and a score. From there we swapped the top-down dodger for a side-on platformer, and Stephen pulled in <a href="https://kenney.nl/">Kenney</a>’s free platformer art as placeholder and organized it. Kenney’s packs are the reason prototypes like this can look friendly on day one.</p>
 	<figure>
 		<video controls muted playsinline preload="metadata" poster="video/creeps-start.jpg" src="video/creeps-start.mp4"></video>
 		<figcaption>Early November: still titled “Dodge the Creeps”, now on Kenney tiles</figcaption>
@@ -44,7 +55,7 @@
 	<p>I added <a href="https://github.com/bitwes/Gut">GUT</a>, the Godot unit testing tool, in the second week, and GitHub Actions runs the suite on every pull request with JUnit reports right in the PR. It feels early for a game that’s mostly a pink blob and some coins, but the habit is much easier to start now than to retrofit later, and everything after this gets built on top of it.</p>
 
 	<h2>Maps that connect</h2>
-	<p>The rest of the month was about having more than one place to be:</p>
+	<p>The rest of the month was about having more than one place to be. Stephen built the town and the atlas, and I wired up the warps and started the inventory:</p>
 	<ul>
 		<li>A first <b>town map</b> with a parallax background, so the sky scrolls behind the play space.</li>
 		<li>An <b>atlas</b>: a data model for which maps exist and how their edges and warps connect.</li>

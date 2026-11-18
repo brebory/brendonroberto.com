@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Making Hits Land · Brendon Roberto</title>
 <meta name="description" content="Fiber's enemies and combat feel: data-driven mobs, melee hitboxes, floating damage numbers, hit flash, screenshake, i-frames and hitstop.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Brendon Roberto">
+<meta property="og:title" content="Making Hits Land">
+<meta property="og:description" content="Fiber&#x27;s enemies and combat feel: data-driven mobs, melee hitboxes, floating damage numbers, hit flash, screenshake, i-frames and hitstop.">
+<meta property="og:url" content="https://brendonroberto.com/blog/fiber-combat-feel/">
+<meta property="og:image" content="https://brendonroberto.com/img/og/fiber-combat-feel.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://brendonroberto.com/blog/fiber-combat-feel/">
+<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
@@ -32,8 +43,8 @@
 	<p class="lede">For a couple of months Fiber had enemies that could hit you and that you could hit back. It worked, but it didn’t feel like anything. This post covers how the enemies came together and the pile of small effects that make a hit feel like a hit.</p>
 
 	<h2>One mob scene, many mobs</h2>
-	<p>Every enemy is the same scene. What makes a slime a slime is a <b>mob resource</b>: a data file with its sprites, stats, speed, starting behavior, patrol distance, vision and actions. A new enemy type is made entirely in the Godot editor, with no new code. The first batch was ten of them, each with its own quirks, including some that run away the moment they spot you.</p>
-	<p>Mobs run on the same state machine as the player, with states like idle, patrol, chase and attack. They find their way around with Godot’s navigation, and they notice you two ways: a vision cone in front of them, confirmed with a line-of-sight raycast so they can’t see through walls, and a small alert radius all the way round, so you can’t stand right behind one unnoticed. Slimes got a squash-and-stretch bounce, which did more for their personality than anything else.</p>
+	<p>Stephen Cassidy built the mob system, and its core idea is that every enemy is the same scene. What makes a slime a slime is a <b>mob resource</b>: a data file with its sprites, stats, speed, starting behavior, patrol distance, vision and actions. A new enemy type is made entirely in the <a href="https://godotengine.org/">Godot</a> editor, with no new code. The first batch was ten of them, each with its own quirks, including some that run away the moment they spot you.</p>
+	<p>Mobs run on the same state machine as the player, with states like idle, patrol, chase and attack. They find their way around with Godot’s navigation, and they notice you two ways: a vision cone in front of them, confirmed with a line-of-sight raycast so they can’t see through walls, and a small alert radius all the way round, so you can’t stand right behind one unnoticed. Stephen also gave the slimes a squash-and-stretch bounce.</p>
 	<figure>
 		<video controls muted playsinline preload="metadata" poster="video/mob-vision.jpg" src="video/mob-vision.mp4"></video>
 		<figcaption>Debug view: each mob’s vision cone, line of sight and alert radius</figcaption>
@@ -44,10 +55,10 @@
 	</figure>
 
 	<h2>Fighting back</h2>
-	<p>Combat is built on <b>hitboxes</b> and <b>hurtboxes</b>. An attack spawns a hitbox for a moment, and anything with a hurtbox that it overlaps takes damage, worked out from the attacker’s stats, the attack, and the target’s resistances. Mobs chase you until you’re in range, then switch to a melee attack state that spawns their own hitbox. They have health bars, and both sides get a slash effect when they swing, tinted red for enemies. Attacks also got a separate end delay, so how long a hitbox lasts no longer decides how long the whole attack takes.</p>
+	<p>I wired the mobs into combat, which is built on <b>hitboxes</b> and <b>hurtboxes</b>. An attack spawns a hitbox for a moment, and anything with a hurtbox that it overlaps takes damage, worked out from the attacker’s stats, the attack, and the target’s resistances. Mobs chase you until you’re in range, then switch to a melee attack state that spawns their own hitbox. They have health bars, and both sides get a slash effect when they swing, tinted red for enemies. Attacks also got a separate end delay, so how long a hitbox lasts no longer decides how long the whole attack takes.</p>
 
 	<h2>The small stuff</h2>
-	<p>With fights working, I spent the last few weeks on feel. None of these are big systems on their own; together, they’re the difference between a number going down and a hit.</p>
+	<p>With fights working, we spent the last few weeks on feel. I built the damage numbers and hitstop, and Stephen built the hit reactions. None of these are big systems on their own; together, they’re the difference between a number going down and a hit.</p>
 
 	<h3>Damage numbers</h3>
 	<p>Every hit pops a number above the target. The number’s size and color scale with the damage, and crits get their own treatment. Each number pops up, arcs off like a fountain away from the hit, and fades. The first version moved too fast to read, so it slowed down and the arc got smoother. The numbers also draw on their own layer above everything else, so they never hide behind a mob.</p>
@@ -74,7 +85,7 @@ duration = lerp(0.05 s, 0.15 s, t)</pre>
 		<video controls muted playsinline preload="metadata" poster="video/first-fights.jpg" src="video/first-fights.mp4"></video>
 		<figcaption>A fight from the day hit reactions landed</figcaption>
 	</figure>
-	<p>Two smaller changes went in alongside it. Dashing no longer makes you invulnerable. And item pickups and loot drops got their own bit of juice. Next up is knockback.</p>
+	<p>Two smaller changes went in alongside it. Dashing no longer makes you invulnerable, and Stephen gave item pickups and loot drops their own bit of juice. Next up is knockback.</p>
 </main>
 
 <p class="post-footer"><a href="/blog/">← More posts</a></p>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills You Sew · Brendon Roberto</title>
+<meta name="description" content="Fiber's emblem system: skills as craftable items you weave from patterns, embroider with modifiers and use as keys, plus the first skill effect, Ember Slash.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Brendon Roberto">
+<meta property="og:title" content="Skills You Sew">
+<meta property="og:description" content="Fiber&#x27;s emblem system: skills as craftable items you weave from patterns, embroider with modifiers and use as keys, plus the first skill effect, Ember Slash.">
+<meta property="og:url" content="https://brendonroberto.com/blog/fiber-emblems/">
+<meta property="og:image" content="https://brendonroberto.com/img/og/fiber-emblems.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://brendonroberto.com/blog/fiber-emblems/">
+<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
+<link rel="stylesheet" href="/css/normalize.css">
+<link rel="stylesheet" href="/css/post.css">
+<style>
+/* Layout Rules */
+.post table { width: 100%; margin: 1em 0 1.5em; border-collapse: collapse; }
+.post th, .post td { padding: 0.4em 0.6em; text-align: left; vertical-align: top; }
+
+/* Typography Rules */
+.post table { font-size: 0.95em; }
+
+/* Appearance Rules */
+.post th, .post td { border-bottom: 1px solid var(--rule); }
+</style>
+</head>
+<body>
+<header class="post-masthead">
+	<nav><a href="/">Brendon Roberto</a> / <a href="/blog/">Blog</a></nav>
+	<h1>Skills you sew</h1>
+	<p class="byline"><time datetime="2026-04-07">April 7, 2026</time></p>
+</header>
+
+<main class="post">
+	<p class="lede">In most action RPGs you level up and pick skills from a tree. In Fiber, a skill is an item. You weave it from a pattern, embroider it with modifiers, and swap it like gear. These are <b>emblems</b>.</p>
+
+	<h2>Weave, embroider, unstitch</h2>
+	<p>Emblems reuse the crafting language from <a href="/blog/fiber-stats-and-affixes/">items and affixes</a>, with fiber verbs:</p>
+	<ul>
+		<li><b>Patterns</b> are recipes you learn from bosses and quests. Each one lets you weave a specific emblem.</li>
+		<li><b>Weave</b> an emblem from a pattern and materials. It comes out at a grade, Common through Legendary, like everything else.</li>
+		<li><b>Embroider</b> an emblem with modifiers. It starts with one slot and can grow to three.</li>
+		<li><b>Unstitch</b> a modifier to get it back intact. It’s free, for the same reason pulling affixes off items is free: experimenting shouldn’t cost you.</li>
+	</ul>
+	<p>There’s also upgrading, rerolling, slot expansion and salvage, each built as its own small operation with its own tests.</p>
+	<figure>
+		<video controls muted playsinline preload="metadata" poster="video/emblem-tooltips.jpg" src="video/emblem-tooltips.mp4"></video>
+		<figcaption>Emblems sit in the inventory next to gear, with their own tooltips and slots</figcaption>
+	</figure>
+
+	<h2>What a modifier can do</h2>
+	<p>Item affixes mostly change numbers on you. Emblem modifiers change how the skill behaves:</p>
+	<div class="tablewrap"><table>
+		<thead><tr><th>Modifier</th><th>Example</th></tr></thead>
+		<tbody>
+			<tr><td>Projectile count</td><td>+2 projectiles</td></tr>
+			<tr><td>Area</td><td>+30% area</td></tr>
+			<tr><td>Damage</td><td>+10 damage, or +25%</td></tr>
+			<tr><td>Cost</td><td>−20% stamina cost</td></tr>
+			<tr><td>Cost conversion</td><td>Pay with HP instead of MP</td></tr>
+			<tr><td>Cooldown</td><td>−0.5 s cooldown</td></tr>
+		</tbody>
+	</table></div>
+	<p>Skills can cost any mix of stamina, mana and health, which is what makes cost conversion interesting: a mana-hungry build can choose to spend health instead.</p>
+	<p>Under the hood, a <b>skill definition</b> describes the base skill: its type (projectile, melee, movement, buff and so on), element, costs, cooldown and attack data. When you equip an emblem, a <b>resolver</b> folds its modifiers over the definition and caches the final skill. Changing the modifiers clears the cache, so a skill isn’t recomputed every time you use it.</p>
+
+	<h2>Skills are keys</h2>
+	<p>Emblems double as Fiber’s metroidvania keys. Gates in the world ask for a skill with the right property, like an element, a kind of movement or enough force to break something, and you open them by equipping the right emblem and using it on the gate. Your build decides where you can explore, and the keys are things you crafted.</p>
+
+	<h2>Managing them</h2>
+	<p>Emblems live in the same inventory as items. Their cards share the item card’s layout, and there’s a management dialog to cycle through what you own, slot them into skill buttons, and embroider or unstitch.</p>
+	<figure>
+		<video controls muted playsinline preload="metadata" poster="video/emblem-cycling.jpg" src="video/emblem-cycling.mp4"></video>
+		<figcaption>Cycling emblems and checking their details</figcaption>
+	</figure>
+
+	<h2>Ember Slash</h2>
+	<p>The first skill to get real visual feedback is <b>Ember Slash</b>, a fiery melee strike. A skill definition can now name an animation and an effect scene, the resolver carries them through, and the skill state plays the animation and spawns the effect when you use it. Ember Slash reuses the melee slash effect with a new fire tint shader on top, so a new elemental slash is mostly a tint and a data file.</p>
+	<p>Next, more skills to make use of all this: projectiles, buffs, and the first movement skills to use on gates.</p>
+</main>
+
+<p class="post-footer"><a href="/blog/">← More posts</a></p>
+<script src="/js/lightbox.js"></script>
+</body>
+</html>

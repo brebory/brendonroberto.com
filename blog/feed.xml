@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Brendon Roberto</title>
+    <link>https://brendonroberto.com/blog/</link>
+    <atom:link href="https://brendonroberto.com/blog/feed.xml" rel="self" type="application/rss+xml"/>
+    <description>Game development deep dives, Fiber dev logs, art and experiments.</description>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 18 Nov 2026 12:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Sketchbook</title>
+      <link>https://brendonroberto.com/blog/sketchbook/</link>
+      <guid isPermaLink="true">https://brendonroberto.com/blog/sketchbook/</guid>
+      <pubDate>Wed, 18 Nov 2026 12:00:00 +0000</pubDate>
+      <description>Hypnos from first sketch to 3D, early Rubbley concept art, characters, paintings, figure studies, pixel art and older traditional work.</description>
+    </item>
+    <item>
+      <title>Learning the Fourier transform</title>
+      <link>https://brendonroberto.com/blog/fourier/</link>
+      <guid isPermaLink="true">https://brendonroberto.com/blog/fourier/</guid>
+      <pubDate>Sat, 14 Nov 2026 12:00:00 +0000</pubDate>
+      <description>A sine-wave mixer with a live Fourier transform, and how the FFT splits and recombines to get fast.</description>
+    </item>
+    <item>
+      <title>Living fringe</title>
+      <link>https://brendonroberto.com/blog/fiber-fringe/</link>
+      <guid isPermaLink="true">https://brendonroberto.com/blog/fiber-fringe/</guid>
+      <pubDate>Thu, 12 Nov 2026 12:00:00 +0000</pubDate>
+      <description>Grass, moss and ivy that sway in the wind and bend away from whoever walks through them: Stephen Cassidy’s design, and how it shipped.</description>
+    </item>
+    <item>
+      <title>Fiber</title>
+      <link>https://brendonroberto.com/blog/fiber/</link>
+      <guid isPermaLink="true">https://brendonroberto.com/blog/fiber/</guid>
+      <pubDate>Sun, 08 Nov 2026 12:00:00 +0000</pubDate>
+      <description>A four-player co-op platformer where the whole world is sewn from thread: the world, the Fiberkin and the systems underneath.</description>
+    </item>
+    <item>
+      <title>How Rubbley’s gravity works</title>
+      <link>https://brendonroberto.com/blog/rubbley-physics/</link>
+      <guid isPermaLink="true">https://brendonroberto.com/blog/rubbley-physics/</guid>
+      <pubDate>Fri, 06 Nov 2026 12:00:00 +0000</pubDate>
+      <description>The Newtonian physics behind Rubbley, the small game tweaks layered on top, and the GDScript that implements them, with diagrams and an orbit simulator you can play with.</description>
+    </item>
+    <item>
+      <title>Sewing Fiber’s UI</title>
+      <link>https://brendonroberto.com/blog/fiber-ui/</link>
+      <guid isPermaLink="true">https://brendonroberto.com/blog/fiber-ui/</guid>
+      <pubDate>Wed, 28 Oct 2026 12:00:00 +0000</pubDate>
+      <description>How Fiber’s menus, HUD, shop and auction house became fabric patches: the prototypes, the rules they settled, and screenshots from along the way.</description>
+    </item>
+    <item>
+      <title>Sketch to sprite</title>
+      <link>https://brendonroberto.com/blog/fiber-sprite-pipeline/</link>
+      <guid isPermaLink="true">https://brendonroberto.com/blog/fiber-sprite-pipeline/</guid>
+      <pubDate>Tue, 27 Oct 2026 12:00:00 +0000</pubDate>
+      <description>A local image-generation pipeline for pixel-art drafts: the fight to keep characters on model, a lot of failed animation attempts, and the hand cleanup in Aseprite. Every image is labeled as generated.</description>
+    </item>
+    <item>
+      <title>Fiber’s software factory</title>
+      <link>https://brendonroberto.com/blog/fiber-agents/</link>
+      <guid isPermaLink="true">https://brendonroberto.com/blog/fiber-agents/</guid>
+      <pubDate>Wed, 21 Oct 2026 12:00:00 +0000</pubDate>
+      <description>How a loose idea becomes a merged feature: wayfinder maps, plans merged before issues, a scheduled agent and scripted playtests.</description>
+    </item>
+    <item>
+      <title>Making hits land</title>
+      <link>https://brendonroberto.com/blog/fiber-combat-feel/</link>
+      <guid isPermaLink="true">https://brendonroberto.com/blog/fiber-combat-feel/</guid>
+      <pubDate>Wed, 13 May 2026 12:00:00 +0000</pubDate>
+      <description>Fiber’s data-driven enemies, and the small effects that make combat feel good: damage numbers, hit flash, screenshake, i-frames and hitstop.</description>
+    </item>
+    <item>
+      <title>Remembering things</title>
+      <link>https://brendonroberto.com/blog/fiber-persistence/</link>
+      <guid isPermaLink="true">https://brendonroberto.com/blog/fiber-persistence/</guid>
+      <pubDate>Thu, 07 May 2026 12:00:00 +0000</pubDate>
+      <description>Maps that remember what you did when you warp away, and a save system that writes locally first and syncs to Nakama.</description>
+    </item>
+    <item>
+      <title>Two players, one map</title>
+      <link>https://brendonroberto.com/blog/fiber-multiplayer/</link>
+      <guid isPermaLink="true">https://brendonroberto.com/blog/fiber-multiplayer/</guid>
+      <pubDate>Thu, 23 Apr 2026 12:00:00 +0000</pubDate>
+      <description>Fiber’s first working multiplayer session: a Nakama backend, a host-authoritative game, and the bugs that showed up first.</description>
+    </item>
+    <item>
+      <title>Drafting dungeons</title>
+      <link>https://brendonroberto.com/blog/fiber-dungeon-drafting/</link>
+      <guid isPermaLink="true">https://brendonroberto.com/blog/fiber-dungeon-drafting/</guid>
+      <pubDate>Sat, 18 Apr 2026 12:00:00 +0000</pubDate>
+      <description>Fiber’s endgame: crafted dungeon keys, a party that drafts rooms card by card, and Stephen Cassidy’s door UI.</description>
+    </item>
+    <item>
+      <title>Skills you sew</title>
+      <link>https://brendonroberto.com/blog/fiber-emblems/</link>
+      <guid isPermaLink="true">https://brendonroberto.com/blog/fiber-emblems/</guid>
+      <pubDate>Tue, 07 Apr 2026 12:00:00 +0000</pubDate>
+      <description>Emblems: skills as craftable items you weave, embroider and use as keys, and the first skill effect, Ember Slash.</description>
+    </item>
+    <item>
+      <title>Stats and affixes</title>
+      <link>https://brendonroberto.com/blog/fiber-stats-and-affixes/</link>
+      <guid isPermaLink="true">https://brendonroberto.com/blog/fiber-stats-and-affixes/</guid>
+      <pubDate>Mon, 16 Mar 2026 12:00:00 +0000</pubDate>
+      <description>Fiber’s RPG stat system, graded item affixes, thread-based crafting and the equipment screen that shows it all.</description>
+    </item>
+    <item>
+      <title>Fiber’s first month</title>
+      <link>https://brendonroberto.com/blog/fiber-first-steps/</link>
+      <guid isPermaLink="true">https://brendonroberto.com/blog/fiber-first-steps/</guid>
+      <pubDate>Tue, 18 Nov 2025 12:00:00 +0000</pubDate>
+      <description>Starting a co-op platformer from Godot’s starter tutorial and Kenney placeholder art: a player state machine, one-way platforms, tests in CI and maps that connect.</description>
+    </item>
+  </channel>
+</rss>

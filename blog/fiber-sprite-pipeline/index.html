@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sketch to Sprite · Brendon Roberto</title>
+<meta name="description" content="A local image-generation pipeline for Fiber that turns sketches into on-model pixel-art drafts: the fight for consistency, a lot of failed animation attempts, and the hand cleanup in Aseprite that finishes the job.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Brendon Roberto">
+<meta property="og:title" content="Sketch to Sprite">
+<meta property="og:description" content="A local image-generation pipeline for Fiber that turns sketches into on-model pixel-art drafts: the fight for consistency, a lot of failed animation attempts, and the hand cleanup in Aseprite that finishes the job.">
+<meta property="og:url" content="https://brendonroberto.com/blog/fiber-sprite-pipeline/">
+<meta property="og:image" content="https://brendonroberto.com/img/og/fiber-sprite-pipeline.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://brendonroberto.com/blog/fiber-sprite-pipeline/">
+<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
+<link rel="stylesheet" href="/css/normalize.css">
+<link rel="stylesheet" href="/css/post.css">
+<style>
+/* Layout Rules */
+.post .callout { margin: 1.5em 0; padding: 1em 1.25em; }
+.post .anims { display: flex; flex-wrap: wrap; gap: 1em; justify-content: center; }
+.post .anims figure { margin: 0; }
+.post .anims img { width: 224px; height: 224px; }
+.post .keys img { width: 160px; height: 160px; }
+
+/* Appearance Rules */
+.post .callout { background: var(--panel); border-left: 4px solid var(--accent); border-radius: 0 6px 6px 0; }
+</style>
+</head>
+<body>
+<header class="post-masthead">
+	<nav><a href="/">Brendon Roberto</a> / <a href="/blog/">Blog</a></nav>
+	<h1>Sketch to sprite</h1>
+	<p class="byline"><time datetime="2026-10-27">October 27, 2026</time></p>
+</header>
+
+<main class="post">
+	<p class="callout"><b>Up front:</b> every sprite and animation frame in this post is <b>generated</b> by image and video models running on my own machine, from our own sketches and sprites. This post is mostly about where that goes wrong. Nothing here is presented as hand-drawn.</p>
+
+	<p class="lede">Fiber needs a lot of characters, and a sketch isn’t a sprite. I spent this week building a pipeline that takes a concept sketch and turns it into a pixel-art draft at the size the game uses. Getting a character to come out looking like itself turned out to be the whole job.</p>
+
+	<h2>The pipeline</h2>
+	<p>It’s a small command-line tool that drives <a href="https://www.comfy.org/">ComfyUI</a> locally on a 12 GB graphics card. A <b>recipe</b> names the character, its reference, any extra references, and the sizes to make. The tool squares and upscales the references (nearest-neighbor, so pixel art stays crisp), fills in a workflow with an identity-preserving image-editing model and pixel-art LoRAs, keys out the background, and writes everything to a timestamped folder with fixed seeds so any run can be reproduced. It’s also exposed to agents over MCP, so an agent working on a feature can ask for a placeholder in the right style.</p>
+	<p>The pilot ran five characters (the Fiberkin, an Emissary, the Loomwright, Bloby and a dinosaur) at 32, 64 and 128 pixels. The Emissary and Loomwright concept sketches are by <a href="https://github.com/DanasGlimpse">Dana Cassidy</a>, Stephen’s sister and another contributor to Fiber.</p>
+
+	<h2>Round 1: the style ate the characters</h2>
+	<p>To make everything match, I passed the Fiberkin draft in as a second “style” image. The Fiberkin itself came out on model at small sizes, but at 128 pixels it turned into a human girl in a hood. Everyone else went worse: the Emissary and the Loomwright both turned into the Fiberkin, Bloby became a hooded girl, and the dino kept its body but grew the Fiberkin’s hair and a human face.</p>
+	<figure>
+		<a href="img/r1-fiberkin-drift.webp"><img class="pixel" src="img/r1-fiberkin-drift.webp" width="1600" height="528" loading="lazy" alt="Three generated Fiberkin sprites at 32, 64 and 128 pixels: the first two are hooded, the 128 pixel one is a girl with long hair and a human face"></a>
+		<figcaption>The Fiberkin at 32, 64 and 128 px. The bigger it gets, the more human it gets.</figcaption>
+	</figure>
+	<figure>
+		<a href="img/r1-dino-override.webp"><img class="pixel" src="img/r1-dino-override.webp" width="1600" height="528" loading="lazy" alt="Three generated dino sprites: an orange dinosaur, then the same dinosaur with blonde human hair and a face, then a girl in an orange dinosaur suit"></a>
+		<figcaption>The dino, slowly becoming a girl in a dino costume</figcaption>
+	</figure>
+
+	<h2>Round 2: one reference at a time</h2>
+	<p>With a single character reference and no style image, identity held: the Emissary kept its spotted hat and cloak, the Loomwright its blanket pile and shuttle, and a purple bean came out clean enough to keep as an enemy. I also tried two fallback workflows, a two-pass version and plain text-to-image. Both lost the character and drew generic hooded people.</p>
+	<figure>
+		<a href="img/r2-templates.webp"><img class="pixel" src="img/r2-templates.webp" width="1600" height="796" loading="lazy" alt="Two rows of generated sprites: the top row is on model (spotted hat Emissary, hooded Loomwright, purple bean, orange dino); the bottom row from fallback workflows shows noisy or generic hooded human figures"></a>
+		<figcaption>Top: one character reference. Bottom: the fallbacks, which forget who they’re drawing.</figcaption>
+	</figure>
+
+	<h2>Round 3: describe the style instead</h2>
+	<p>The fix for style was to stop showing it. A vision-language model now <em>describes</em> the style reference in words (“outline weight, flat shading and muted palette”), and that text goes into the prompt. Every character came out recognizable at 64 and 128 pixels and in one consistent style. The catch was color: the description pulled everyone toward the Fiberkin’s browns, so Bloby lost its purple and the dino its orange unless the recipe says to keep the source colors.</p>
+	<figure>
+		<a href="img/round-three.webp"><img src="img/round-three.webp" width="1055" height="1400" loading="lazy" alt="Grid of generated pixel-art drafts: each row starts with a reference (the Fiberkin, an Emissary sketch, a Loomwright sketch, Bloby, a dino) followed by generated sprites at 32, 64 and 128 pixels"></a>
+		<figcaption>Round 3: reference on the left (the Emissary and Loomwright sketches are Dana’s), drafts at 32, 64 and 128 px. Note Bloby and the dino going brown.</figcaption>
+	</figure>
+	<p>32 pixels was the weak size every round, so Fiber’s characters are 64 or 128.</p>
+
+	<h2>Getting the face back</h2>
+	<p>The Fiberkin’s face is fabric with a button eye. The model kept giving it a peach human face instead. A more explicit prompt alone did nothing. Weighting the reference more heavily removed the human face, and handing the model the draft’s own palette removed the skin tones. Both together came closest to the original.</p>
+	<figure>
+		<a href="img/face-sweep.webp"><img class="pixel" src="img/face-sweep.webp" width="1320" height="602" loading="lazy" alt="The original Fiberkin draft next to eight generated variants across two seeds: prompt only, boosted reference, palette, and both"></a>
+		<figcaption>The face sweep: the original draft, then prompt, boost, palette and both, across two seeds</figcaption>
+	</figure>
+
+	<h2>Making it move</h2>
+	<p>A player sprite needs to walk, jump, attack and more, so I also spiked turning a sprite into animation with Wan 2.2 image-to-video, using settings from the MIT-licensed <a href="https://github.com/cueqzapper/pixel-video-sprites">pixel-video-sprites</a> project.</p>
+
+	<h3>Text prompts: good walk, terrible everything else</h3>
+	<p>A text prompt was enough for a walk: on model, legs alternating. The attack started with a fine wind-up, then the Fiberkin fell over, rolled, and ended up facing the camera. The jump left the top of the frame, shrank as if the camera pulled back, and landed facing the camera too.</p>
+	<figure>
+		<a href="img/anim-text-only.webp"><img src="img/anim-text-only.webp" width="1550" height="640" loading="lazy" alt="Frames from text-prompted animations on green: a clean walk row, then an attack row where the character tumbles over, a jump row where it shrinks and vanishes, and a cast row"></a>
+		<figcaption>Text-prompted walk, attack, jump and cast. Only the walk survived.</figcaption>
+	</figure>
+
+	<h3>A reference clip: the cloak throws the punch</h3>
+	<p>For actions with timing, I drove the motion from a short reference clip of a one-two punch. Identity held much better, and turning the pose strength up got full punches on the beats. But the arms came out long, thin and human-length. Worse, the wrong part of the body moved: the Fiberkin’s real arm, a pale sleeve ending in a round ball hand, stayed at its side while the top of the cloak did the punching. The model rebuilds the body from the human in the clip, so it maps a human arm onto whatever sits where a human arm would be.</p>
+	<figure>
+		<a href="img/anim-clip-sweep.webp"><img class="pixel" src="img/anim-clip-sweep.webp" width="1600" height="884" loading="lazy" alt="Five rows of generated punch frames on green at different pose strengths and crops; the punches come from a stretched piece of the cloak rather than the character's arm"></a>
+		<figcaption>Pose strength and crop sweep. The cloak punches; the arm doesn’t.</figcaption>
+	</figure>
+	<figure>
+		<a href="img/anim-arm-fixes.webp"><img class="pixel" src="img/anim-arm-fixes.webp" width="1600" height="800" loading="lazy" alt="Four rows comparing fixes for the punch: a baseline, describing the arm in the prompt, a guard pose as the reference, and key poses with in-betweens"></a>
+		<figcaption>Three fixes for the arm, under the baseline. Describing the arm changed nothing.</figcaption>
+	</figure>
+
+	<h3>Key poses and in-betweens</h3>
+	<p>What finally worked was going back to stills. The static pipeline drew three <b>key poses</b>, guard, jab and cross, with the arm named explicitly in the prompt, and they came out on model. Then the video model only had to fill in the frames between two keys.</p>
+	<div class="anims keys">
+		<figure><img class="pixel" src="img/key_guard.png" width="64" height="64" loading="lazy" alt="Generated key pose: the Fiberkin in a guard stance"><figcaption>Guard</figcaption></figure>
+		<figure><img class="pixel" src="img/key_jab.png" width="64" height="64" loading="lazy" alt="Generated key pose: the Fiberkin throwing a jab with its ball hand"><figcaption>Jab</figcaption></figure>
+		<figure><img class="pixel" src="img/key_cross.png" width="64" height="64" loading="lazy" alt="Generated key pose: the Fiberkin throwing a cross"><figcaption>Cross</figcaption></figure>
+	</div>
+	<p>Even that took a sweep, because the gap between keys matters. At 5 frames the in-betweens collapsed into washed-out mush. At 9 they popped between poses and the background color drifted. At 33 the model had so much freedom that the arm swung out backwards into a T-pose before punching. Seventeen frames was the sweet spot.</p>
+	<figure>
+		<a href="img/anim-short-segments.webp"><img class="pixel" src="img/anim-short-segments.webp" width="1600" height="480" loading="lazy" alt="Rows of generated in-between frames with short segments: washed-out, pinkish and popping frames"></a>
+		<figcaption>Segments that are too short: washed out, popping, drifting color</figcaption>
+	</figure>
+	<figure>
+		<a href="img/anim-33-frames.webp"><img class="pixel" src="img/anim-33-frames.webp" width="1584" height="432" loading="lazy" alt="Rows of generated in-between frames with 33-frame segments, where the arm swings backwards before the jab"></a>
+		<figcaption>Segments that are too long: the arm swings back before the jab</figcaption>
+	</figure>
+
+	<h3>Back to pixel art</h3>
+	<p>Video frames are soft, not pixel art. The last stage redraws each frame with the pixel model at low strength and then snaps every frame to <b>one shared palette</b>, the base sprite’s nine colors. That brings back hard pixels and a clean outline, pulls the face back toward the button eye, and keeps flicker low. It also needed a fix for the green screen: the refiner darkened the key green, so plain chroma keying left green specks until the keying rule was loosened. Feet and body get pinned to a baseline so the sprite doesn’t drift while it moves.</p>
+	<figure>
+		<a href="img/anim-redraw-walk.webp"><img class="pixel" src="img/anim-redraw-walk.webp" width="1600" height="400" loading="lazy" alt="Walk frames before and after the pixel redraw: soft video frames on top, crisp palette-locked pixel frames below"></a>
+		<figcaption>Walk frames before and after the redraw and palette snap</figcaption>
+	</figure>
+	<div class="anims">
+		<figure><img class="pixel" src="img/pipeline_fiberkin_walk.gif" width="512" height="512" loading="lazy" alt="Generated animation: the Fiberkin walking in place"><figcaption>Generated walk</figcaption></figure>
+		<figure><img class="pixel" src="img/jab_flf_17_redrawn.gif" width="384" height="384" loading="lazy" alt="Generated animation: the Fiberkin throwing a jab from guard and returning to guard"><figcaption>Generated jab, keys plus in-betweens</figcaption></figure>
+		<figure><img class="pixel" src="img/pipeline_fiberkin_attack.gif" width="512" height="512" loading="lazy" alt="Generated animation: the Fiberkin's attack"><figcaption>Generated attack</figcaption></figure>
+	</div>
+
+	<h2>Where it lands</h2>
+	<p>The pipeline gets a character from sketch to an on-model, in-style draft in a couple of minutes, and gets a simple animation most of the way there. It doesn’t get it all the way. Faces creep back, stray pixels survive the palette snap, and outlines break. In a lot of cases I needed to clean up the sprites by hand, and that’s where <a href="https://www.aseprite.org/">Aseprite</a> comes into the workflow: generate the draft, then fix it pixel by pixel like any other sprite before it goes in the game.</p>
+</main>
+
+<p class="post-footer"><a href="/blog/">← More posts</a></p>
+<script src="/js/lightbox.js"></script>
+</body>
+</html>

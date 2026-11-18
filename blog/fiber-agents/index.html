@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiber's Software Factory · Brendon Roberto</title>
+<meta name="description" content="How Fiber goes from a loose idea to a merged feature with AI agents doing the implementation: wayfinder maps, plans merged before issues, a scheduled agent, and scripted playtests.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Brendon Roberto">
+<meta property="og:title" content="Fiber&#x27;s Software Factory">
+<meta property="og:description" content="How Fiber goes from a loose idea to a merged feature with AI agents doing the implementation: wayfinder maps, plans merged before issues, a scheduled agent, and scripted playtests.">
+<meta property="og:url" content="https://brendonroberto.com/blog/fiber-agents/">
+<meta property="og:image" content="https://brendonroberto.com/img/og/fiber-agents.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://brendonroberto.com/blog/fiber-agents/">
+<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
+<link rel="stylesheet" href="/css/normalize.css">
+<link rel="stylesheet" href="/css/post.css">
+<style>
+/* Layout Rules */
+.stages { margin: 1.5em 0; padding: 0; list-style: none; counter-reset: stage; }
+.stages li { position: relative; margin: 0 0 0.75em; padding: 0.8em 1em 0.8em 3.2em; }
+.stages li::before { position: absolute; top: 0.75em; left: 1em; }
+
+/* Typography Rules */
+.stages li::before { counter-increment: stage; content: counter(stage); font-family: "Gentium Book Basic", Georgia, serif; font-weight: 700; font-size: 1.3em; line-height: 1; }
+.stages b { display: block; }
+
+/* Appearance Rules */
+.stages li { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; }
+.stages li::before { color: var(--accent-deep); }
+</style>
+</head>
+<body>
+<header class="post-masthead">
+	<nav><a href="/">Brendon Roberto</a> / <a href="/blog/">Blog</a></nav>
+	<h1>Fiber’s software factory</h1>
+	<p class="byline"><time datetime="2026-10-21">October 21, 2026</time></p>
+</header>
+
+<main class="post">
+	<p class="lede">A lot of Fiber’s code is now written by AI agents, often while I’m doing something else. That only works because of a process that keeps the decisions with people and hands the agents work they can finish without asking. This week I wrote it all down in one place, so here’s the tour.</p>
+
+	<h2>Ideas become maps</h2>
+	<p>Everything starts as a loose idea: “projectiles should ricochet,” “the UI should look sewn,” “grass should move when you walk through it.” A <b>wayfinder map</b>, built on <a href="https://www.aihero.dev/">Matt Pocock</a>’s wayfinder skill, turns that into a GitHub issue with a stated destination and a set of child tickets, each one a question that has to be answered before anyone builds anything:</p>
+	<ul>
+		<li><b>Grilling</b> tickets interview me about a decision until it’s pinned down.</li>
+		<li><b>Prototype</b> tickets build two or three throwaway versions so I can pick by looking, not by imagining.</li>
+		<li><b>Research</b> tickets survey prior art, tools or engine limits.</li>
+		<li><b>Task</b> tickets cover the odd bit of setup.</li>
+	</ul>
+	<p>Every map declares one destination type: code an agent can implement, code a person should implement, an architecture decision record, or a system spec. Tickets block each other with GitHub’s native dependency edges, so “what can be worked on next” is a query, not a judgment call. A daily <b>wayfinding routine</b> advances one open grilling, prototype or research ticket per run, and the answers collect in the map’s “Decisions so far” section.</p>
+
+	<h2>The whole line</h2>
+	<ol class="stages">
+		<li><b>Chart</b>A session turns the idea into a map and child tickets with dependency edges.</li>
+		<li><b>Wayfind</b>One ticket per session or routine run, until every child ticket is closed.</li>
+		<li><b>Hand off</b>Write the implementation plan, merge it to <code>main</code>, <em>then</em> file one agent-ready issue per plan phase.</li>
+		<li><b>Implement</b>A scheduled agent picks the oldest unblocked issue, follows the plan task by task with tests, and opens a PR.</li>
+		<li><b>Playtest and review</b>Scripted playtests capture the result, and I review the PR.</li>
+	</ol>
+
+	<h2>Hard gates, not good intentions</h2>
+	<p>The handoff step has rules that stop it rather than letting it guess. A map can’t hand off until every child ticket is closed. If writing the plan turns up a question the map never answered, the handoff files a new ticket and stops. An agent-ready issue has to be finishable without a human, so a “decide before merging” section in one is a bug by definition.</p>
+	<p>Order matters too: the plan merges to <code>main</code> <em>before</em> any issue points at it. The implementing agent branches from <code>main</code>, so a plan sitting on an unmerged branch is invisible to it. And because Fiber is co-op first, any plan that touches gameplay must say how other players see each change. Multiplayer is never a later “networking pass”.</p>
+
+	<h2>The implementing agent</h2>
+	<p>A scheduled Claude Code routine runs in the cloud. Each run lists the agent-ready issues, walks them oldest first, and takes the first one with no open blockers and enough detail to act on. It claims the issue so another run won’t pick it up, reads the plan and the system docs, follows the plan task by task with GUT tests, and opens a pull request with the full metadata. With a backlog of 80-plus issues and the dependency edges doing the sorting, it has something useful to do on almost every run.</p>
+
+	<h2>Seeing the result</h2>
+	<p>Tests prove the code does what it says, not that it looks or feels right. So this month I added a <b>playtest pipeline</b>: scripted scenarios launch the real game, drive it with real input, capture screenshots on events like taking damage, and record metrics. Playtests assert nothing. They exist so that I, and the agents, can look at what actually happened. They run on demand in CI and post the captures back to the PR.</p>
+	<figure>
+		<a href="img/playtest-captures.webp"><img src="img/playtest-captures.webp" width="1160" height="348" loading="lazy" alt="Four playtest captures of a stitched HUD prototype: full bars, after taking damage, refilling, and hit again"></a>
+		<figcaption>Captures from a HUD prototype’s playtest: idle, damaged, refilling, hit again</figcaption>
+	</figure>
+
+	<h2>What I still do</h2>
+	<p>I chart the maps, answer the grilling, pick between prototypes, and review what lands. The wayfinder, grilling and triage skills come from Matt Pocock’s collection at <a href="https://www.aihero.dev/">AI Hero</a>, and the rest are our own. The agents do the typing. The design and how it feels to play stay with people, which is where I wanted to spend my time anyway.</p>
+</main>
+
+<p class="post-footer"><a href="/blog/">← More posts</a></p>
+<script src="/js/lightbox.js"></script>
+</body>
+</html>

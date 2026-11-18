@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fiber Goes Multiplayer · Brendon Roberto</title>
 <meta name="description" content="How Fiber got its first working multiplayer session: a Nakama backend, a host-authoritative game loop, and a refactor so we could test without Steam.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Brendon Roberto">
+<meta property="og:title" content="Fiber Goes Multiplayer">
+<meta property="og:description" content="How Fiber got its first working multiplayer session: a Nakama backend, a host-authoritative game loop, and a refactor so we could test without Steam.">
+<meta property="og:url" content="https://brendonroberto.com/blog/fiber-multiplayer/">
+<meta property="og:image" content="https://brendonroberto.com/img/og/fiber-multiplayer.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://brendonroberto.com/blog/fiber-multiplayer/">
+<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
@@ -30,12 +41,12 @@
 	<ul>
 		<li>A <b><a href="https://heroiclabs.com/nakama/">Nakama</a> backend</b> for everything that has to persist: player profiles, guilds, inventories, and later trading and dungeon keys.</li>
 		<li>A <b>real-time transport</b> for gameplay inside a session. The plan is Steam’s networking for NAT traversal and relays.</li>
-		<li>The <b>Godot client</b>, where the host runs the authoritative game: physics, combat and enemy AI. Other players send their inputs to the host and get state back.</li>
+		<li>The <b><a href="https://godotengine.org/">Godot</a> client</b>, where the host runs the authoritative game: physics, combat and enemy AI. Other players send their inputs to the host and get state back.</li>
 	</ul>
 	<p>Host-authoritative keeps the rules in one place. Only one machine decides whether a hit landed or what an enemy does next, and everyone else draws what the host says happened.</p>
 
 	<h2>The first pass</h2>
-	<p>A teammate built most of the first layer of networking: a network manager that signs in to Nakama, a session manager for the peer lifecycle, a player manager that spawns one player per connection, input sent over RPCs, a bridge that replicates combat events, and mob sync with the host running the AI. We also got Nakama running locally in Docker with seed data, so nobody needs a server to work on it.</p>
+	<p>Stephen Cassidy built most of the first layer of networking: a network manager that signs in to Nakama, a session manager for the peer lifecycle, a player manager that spawns one player per connection, input sent over RPCs, a bridge that replicates combat events, and mob sync with the host running the AI. He also got Nakama running locally in Docker with seed data, so neither of us needs a server to work on it.</p>
 
 	<h2>Testing without Steam</h2>
 	<p>The plan routes sign-in and lobbies through Steam, which made it hard to test two copies on one machine or between two dev machines. So I refactored it to work without Steam:</p>

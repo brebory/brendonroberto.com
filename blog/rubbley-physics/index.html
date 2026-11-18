@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>How Rubbley's Gravity Works · Brendon Roberto</title>
 <meta name="description" content="The Newtonian physics behind Rubbley, the tweaks layered on top, and the GDScript that implements them, with diagrams and an interactive orbit lab.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Brendon Roberto">
+<meta property="og:title" content="How Rubbley&#x27;s Gravity Works">
+<meta property="og:description" content="The Newtonian physics behind Rubbley, the tweaks layered on top, and the GDScript that implements them, with diagrams and an interactive orbit lab.">
+<meta property="og:url" content="https://brendonroberto.com/blog/rubbley-physics/">
+<meta property="og:image" content="https://brendonroberto.com/img/og/rubbley-physics.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://brendonroberto.com/blog/rubbley-physics/">
+<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -377,7 +388,7 @@ d → 0 :  F → 0             peak at d = ε/√2</div>
 <!-- 06 -->
 <section id="anchored">
   <h2><span class="n">06</span>Anchored bodies</h2>
-  <p>A big level planet is frozen in place. It still has to pull, and Godot's <code>Area3D</code> point gravity does that cheaply. With a unit distance of 1 m, Godot computes <code>g = strength / d²</code>: exact inverse-square, with no softening. The system sets the strength every tick to <code>G × mass × multiplier</code>.</p>
+  <p>A big level planet is frozen in place. It still has to pull, and <a href="https://godotengine.org/">Godot</a>'s <code>Area3D</code> point gravity does that cheaply. With a unit distance of 1 m, Godot computes <code>g = strength / d²</code>: exact inverse-square, with no softening. The system sets the strength every tick to <code>G × mass × multiplier</code>.</p>
   <div class="file">game/gravity/anchored_pull.gd</div>
 <pre class="code">gravity_space_override = Area3D.SPACE_OVERRIDE_COMBINE
 gravity_point = true

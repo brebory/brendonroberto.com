@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fiber · Brendon Roberto</title>
 <meta name="description" content="Fiber is a four-player co-op platformer where the whole world, and everyone in it, is sewn from thread. A tour of the world, the Fiberkin and the systems that make it tick.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Brendon Roberto">
+<meta property="og:title" content="Fiber">
+<meta property="og:description" content="Fiber is a four-player co-op platformer where the whole world, and everyone in it, is sewn from thread. A tour of the world, the Fiberkin and the systems that make it tick.">
+<meta property="og:url" content="https://brendonroberto.com/blog/fiber/">
+<meta property="og:image" content="https://brendonroberto.com/img/og/fiber.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://brendonroberto.com/blog/fiber/">
+<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
@@ -28,6 +39,8 @@ body { font-family: "Quicksand", Verdana, sans-serif; font-weight: 500; }
 .patch p { margin: 0; }
 .patches { display: grid; grid-template-columns: repeat(auto-fit, minmax(12em, 1fr)); gap: 1em; }
 .patches .patch { margin: 0; }
+.patches.loop { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 30em) { .patches.loop { grid-template-columns: 1fr; } }
 .layers { margin: 1.5em 0; border-radius: 14px; overflow: hidden; border: 2px solid var(--rule); }
 .layers > div { padding: 1em 1.4em; }
 .layers > div + div { border-top: 2px dashed var(--rule); }
@@ -57,7 +70,7 @@ body { font-family: "Quicksand", Verdana, sans-serif; font-weight: 500; }
 <main class="post">
 	<h2>A world you can hold in your hands</h2>
 	<p class="lede">Fiber is a co-op platformer for up to four friends. You live in warm, handmade guild towns, and you head out room by room with your friends, gathering threads, rescuing folk and bringing it all home to craft with.</p>
-	<p>The tone I keep coming back to is Studio Ghibli: Irontown and the Valley of the Wind, warm, busy communities where everyone has a craft. It's built in Godot 4, with an online backend on Nakama.</p>
+	<p>The tone I keep coming back to is Studio Ghibli: Irontown and the Valley of the Wind, warm, busy communities where everyone has a craft. It's built in <a href="https://godotengine.org/">Godot</a> 4, with an online backend on Nakama.</p>
 
 	<div class="patches">
 		<div class="patch"><div><h3>Squad up</h3><p>Four-player online co-op, built in from day one.</p></div></div>
@@ -78,13 +91,13 @@ body { font-family: "Quicksand", Verdana, sans-serif; font-weight: 500; }
 		<figure><img class="pixel" src="img/fiberkin.png" width="768" height="1024" alt="The Fiberkin pixel sprite: a patchwork hood stitched from tan and brown scraps, a stitched smile, a cloak and stubby legs"></figure>
 		<div>
 			<p>The hero is a small guild member stitched together from found scraps: a patchwork hood with visible seams, a stitched smile, and a cloak that trails behind every jump.</p>
-			<p>The sprite has to read at 64 pixels, stay charming at 128, and be simple enough for four players to tell apart by cloth color alone. All five colors come from a palette swap of the same rig, so every animation works for every squadmate.</p>
+			<p>The sprite has to read at 64 pixels, stay charming at 128, and be simple enough for four players to tell apart by cloth color alone. All five colors come from a palette swap of the same rig, so every animation works in every color.</p>
 		</div>
 	</div>
-	<figure><img class="pixel" src="img/fiberkin-colors.png" width="1200" height="320" alt="The Fiberkin in its five cloth colors: beige, green, purple, yellow and pink"><figcaption>One rig, five cloth colors, one per squadmate</figcaption></figure>
+	<figure><img class="pixel" src="img/fiberkin-colors.png" width="1200" height="320" alt="The Fiberkin in its five cloth colors: beige, green, purple, yellow and pink"><figcaption>One rig, five cloth colors to pick from</figcaption></figure>
 
 	<h2>Four friends, one room at a time</h2>
-	<div class="patches">
+	<div class="patches loop">
 		<div class="patch"><div><h3>1 · Gather</h3><p>Shop, craft and pick a gate with your guild in town.</p></div></div>
 		<div class="patch"><div><h3>2 · Descend</h3><p>Each room rolls an encounter: monsters, treasure or someone in trouble.</p></div></div>
 		<div class="patch"><div><h3>3 · Harvest</h3><p>Loot materials and threads. Rescue folk for your town.</p></div></div>
@@ -102,12 +115,12 @@ body { font-family: "Quicksand", Verdana, sans-serif; font-weight: 500; }
 	<p>Threads come in five grades from Common to Legendary. Crafting can reroll, upgrade or corrupt them, and corruption is a deliberate gamble: risk for power the guilds sealed away.</p>
 
 	<h2>Skills are sewn, not learned</h2>
-	<p>Beat a boss and you earn its pattern. Weave the pattern into an <b>emblem</b>, then embroider it with threads to bend how the skill behaves. You can unstitch a thread back out intact, or corrupt the emblem for something stronger and stranger.</p>
+	<p>Beat a boss and you earn its pattern. Weave the pattern into an <b><a href="/blog/fiber-emblems/">emblem</a></b>, then embroider it with threads to bend how the skill behaves. You can unstitch a thread back out intact, or corrupt the emblem for something stronger and stranger.</p>
 	<p>Emblems double as keys. World gates ask for a skill with the right element or movement, so your build decides where you can explore. It’s the metroidvania layer, except the keys are skills you crafted.</p>
 
 	<h2>The party builds the dungeon before it runs it</h2>
 	<p>A crafted key opens an instanced dungeon. Its type sets the biome, its grade sets the stakes, and its affixes bend the whole run. Then everyone drafts: in turn, each player picks a room card from a hand of three or four and may lay a modifier on it. The last room is always the boss.</p>
-	<p>Same key, different party, different dungeon. Preparation is the key crafting, strategy is the draft, and execution is the run.</p>
+	<p>Same key, different party, different dungeon. Preparation is the key crafting, strategy is the draft, and execution is the run. More in <a href="/blog/fiber-dungeon-drafting/">Drafting dungeons</a>.</p>
 
 	<h2>Soft materials, sharp combat</h2>
 	<ul>
@@ -116,7 +129,7 @@ body { font-family: "Quicksand", Verdana, sans-serif; font-weight: 500; }
 		<li><b>Attack riders</b> fire on cast, hit, crit or kill, stacked from gear and skills.</li>
 		<li><b>Four elements</b>: Fire, Ice, Lightning and Void.</li>
 		<li><b>Crowd control</b>: Root pins you in place, Silence locks your emblems, and teammates break you free.</li>
-		<li><b>Living fringe</b>: grass, moss and ivy sway in the wind and bend aside as you brush past.</li>
+		<li><b><a href="/blog/fiber-fringe/">Living fringe</a></b>: grass, moss and ivy sway in the wind and bend aside as you brush past.</li>
 	</ul>
 
 	<h2>Every control is sewn down</h2>
@@ -128,7 +141,7 @@ body { font-family: "Quicksand", Verdana, sans-serif; font-weight: 500; }
 		<figure><img src="img/emissary.png" width="1024" height="1024" alt="An Emissary: a spotted, mushroom-capped cloaked figure"><figcaption>The Emissaries, spotted, capped and quiet</figcaption></figure>
 		<figure><img src="img/bloby.png" width="1024" height="1024" alt="Bloby: a round, smiling tan blob creature"><figcaption>Bloby, an early townsfolk draft</figcaption></figure>
 	</div>
-	<p>These are early drafts from my pixel-art pipeline, which turns concept sketches into on-model sprites in the Fiberkin’s outline weight and palette. Folk you rescue on runs move into your guild town and unlock buffs, recipes and skills.</p>
+	<p>These are generated early drafts from my <a href="/blog/fiber-sprite-pipeline/">pixel-art pipeline</a>, which turns concept sketches into on-model sprites in the Fiberkin’s outline weight and palette. The Loomwright and Emissary sketches are by <a href="https://github.com/DanasGlimpse">Dana Cassidy</a>. Folk you rescue on runs move into your guild town and unlock buffs, recipes and skills.</p>
 
 	<h2>Where it’s at</h2>
 	<div class="stats">
