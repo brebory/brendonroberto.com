@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiber Goes Multiplayer · Brendon Roberto</title>
+<meta name="description" content="How Fiber got its first working multiplayer session: a Nakama backend, a host-authoritative game loop, and a refactor so we could test without Steam.">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
+<link rel="stylesheet" href="/css/normalize.css">
+<link rel="stylesheet" href="/css/post.css">
+</head>
+<body>
+<header class="post-masthead">
+	<nav><a href="/">Brendon Roberto</a> / <a href="/blog/">Blog</a></nav>
+	<h1>Two players, one map</h1>
+	<p class="byline"><time datetime="2026-04-23">April 23, 2026</time></p>
+</header>
+
+<main class="post">
+	<p class="lede">Fiber is meant to be played with up to four friends, so multiplayer can’t be an afterthought. On Monday night, for the first time, two copies of the game shared a map: one hosted a session, the other found it in a list and joined.</p>
+	<figure>
+		<video controls muted playsinline preload="metadata" poster="video/first-session.jpg" src="video/first-session.mp4"></video>
+		<figcaption>The first test: host a session from the multiplayer dashboard, wait, and a second player drops in</figcaption>
+	</figure>
+
+	<h2>Three layers</h2>
+	<p>The design we wrote up in March splits multiplayer into three layers:</p>
+	<ul>
+		<li>A <b><a href="https://heroiclabs.com/nakama/">Nakama</a> backend</b> for everything that has to persist: player profiles, guilds, inventories, and later trading and dungeon keys.</li>
+		<li>A <b>real-time transport</b> for gameplay inside a session. The plan is Steam’s networking for NAT traversal and relays.</li>
+		<li>The <b>Godot client</b>, where the host runs the authoritative game: physics, combat and enemy AI. Other players send their inputs to the host and get state back.</li>
+	</ul>
+	<p>Host-authoritative keeps the rules in one place. Only one machine decides whether a hit landed or what an enemy does next, and everyone else draws what the host says happened.</p>
+
+	<h2>The first pass</h2>
+	<p>A teammate built most of the first layer of networking: a network manager that signs in to Nakama, a session manager for the peer lifecycle, a player manager that spawns one player per connection, input sent over RPCs, a bridge that replicates combat events, and mob sync with the host running the AI. We also got Nakama running locally in Docker with seed data, so nobody needs a server to work on it.</p>
+
+	<h2>Testing without Steam</h2>
+	<p>The plan routes sign-in and lobbies through Steam, which made it hard to test two copies on one machine or between two dev machines. So I refactored it to work without Steam:</p>
+	<ul>
+		<li>If Steam isn’t running, sign in with a Nakama <b>device account</b> instead.</li>
+		<li>Find sessions through <b>Nakama</b> instead of Steam lobbies. The first version listed matches directly; it ended up discovering sessions through a Nakama channel instead.</li>
+		<li>A small <b>multiplayer dashboard</b> to host or join without the league flow the full game will have.</li>
+		<li>Connect players directly over ENet, and use Tailscale to reach each other’s machines during development.</li>
+	</ul>
+
+	<h2>What broke first</h2>
+	<p>Getting two players on screen was mostly a list of small, specific bugs:</p>
+	<ul>
+		<li><b>Duplicate players.</b> The main scene spawned a player and so did the player manager. Now the player manager owns spawning, and your offline player is handed over when you host or join, with the right peer ID.</li>
+		<li><b>Falling through floors.</b> Players spawned over the network had the wrong collision mask and dropped straight through one-way platforms.</li>
+		<li><b>Mobs in two places.</b> Enemies spawned separately on each machine. Now the host spawns them and syncs their positions, and clients smooth toward the host’s position instead of snapping.</li>
+		<li><b>Flickering animations</b> on the client, fixed by syncing animation state properly and resetting it when a pooled enemy is reused.</li>
+	</ul>
+	<p>Most of these fixes came with tests, and the multiplayer code now logs heavily, which made each new bug much faster to track down. Next is making every single-player feature behave when there’s more than one of you.</p>
+</main>
+
+<p class="post-footer"><a href="/blog/">← More posts</a></p>
+<script src="/js/lightbox.js"></script>
+</body>
+</html>
