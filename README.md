@@ -34,7 +34,7 @@ npm run dev
 
 ## Scripts
 
-All three need Python 3. `share-tags.py` also needs Pillow (`pip install pillow`).
+All three need Python 3 (`python` on your PATH). `share-tags.py` also needs Pillow (`pip install pillow`). Each one has an npm alias: `npm run feed`, `npm run share-tags` and `npm run check`.
 
 | Script | When to run it |
 |---|---|
@@ -47,7 +47,7 @@ All three need Python 3. `share-tags.py` also needs Pillow (`pip install pillow`
 1. Copy an existing post folder to `blog/<slug>/`. Each post links `/css/normalize.css` and `/css/post.css`, keeps its own styles in a `<style>` block, and loads `/js/lightbox.js` before `</body>`.
 2. Set the `<title>` (`Post Title · Brendon Roberto`), the meta description and the `<time datetime="YYYY-MM-DD">` byline.
 3. Add the post to the top of the list in `blog/index.html`, in date order.
-4. Run `scripts/share-tags.py`, then `scripts/build-feed.py`, then `scripts/check-links.py`.
+4. Run `npm run share-tags`, then `npm run feed`, then `npm run check`.
 
 ## Media conventions
 
