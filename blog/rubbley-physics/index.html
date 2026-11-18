@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How Rubbley's Gravity Works · Brendon Roberto</title>
+<meta name="description" content="The Newtonian physics behind Rubbley, the tweaks layered on top, and the GDScript that implements them, with diagrams and an interactive orbit lab.">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>[hidden]{display:none!important} img{max-width:100%}</style>
+<style>
+/* Layout: one reading column of notebook "plates"; each idea = prose, a diagram plate, then the real code. */
+:root {
+  --bg: #f2f4f7;
+  --plate: #ffffff;
+  --fg: #19202e;
+  --muted: #5a6478;
+  --rule: #d7dce5;
+  --accent: #2d55c8;   /* acceleration, velocity, Rubbley */
+  --force: #b8750a;    /* forces, impulses */
+  --good: #1f8a5b;
+  --bad: #c0392b;
+  --codebg: #eef1f6;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e131d; --plate: #161d2a; --fg: #e2e7f0; --muted: #96a0b3; --rule: #2a3445;
+    --accent: #84a3ff; --force: #f0b542; --good: #4cc78f; --bad: #ff7a6b; --codebg: #111826;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e131d; --plate: #161d2a; --fg: #e2e7f0; --muted: #96a0b3; --rule: #2a3445;
+  --accent: #84a3ff; --force: #f0b542; --good: #4cc78f; --bad: #ff7a6b; --codebg: #111826;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--body); font-size: 16.5px; line-height: 1.62;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 80px;
+}
+main { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+header { display: flex; flex-direction: column; gap: 14px; }
+.eyebrow { font-family: var(--mono); font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(34px, 6vw, 52px); line-height: 1.05; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+h2 { font-family: var(--display); font-weight: 700; font-size: 27px; line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 .n { font-family: var(--mono); font-weight: 500; font-size: 15px; color: var(--accent); margin-right: 10px; vertical-align: 3px; }
+h3 { font-family: var(--display); font-weight: 500; font-size: 19px; margin: 0; }
+p { margin: 0; max-width: 66ch; }
+.lede { font-size: 18.5px; color: var(--muted); }
+section { display: flex; flex-direction: column; gap: 18px; }
+nav.toc { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 4px 20px; font-size: 14.5px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding-block: 14px; }
+nav.toc a { color: var(--fg); text-decoration: none; }
+nav.toc a span { font-family: var(--mono); color: var(--accent); margin-right: 8px; font-size: 13px; }
+nav.toc a:hover { color: var(--accent); }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code { font-family: var(--mono); font-size: .9em; background: var(--codebg); padding: 1px 5px; border-radius: 4px; }
+.formula { font-family: var(--mono); font-size: 16px; background: var(--plate); border: 1px solid var(--rule); border-left: 3px solid var(--accent); padding: 14px 18px; overflow-x: auto; white-space: pre; line-height: 1.7; }
+.plate { background: var(--plate); border: 1px solid var(--rule); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.plate figcaption { font-size: 14px; color: var(--muted); }
+.plate .scroll { overflow-x: auto; }
+figure { margin: 0; }
+svg { display: block; width: 100%; height: auto; }
+svg text { font-family: var(--body); font-size: 13px; fill: var(--fg); }
+svg .mono { font-family: var(--mono); font-size: 12px; }
+svg .mut { fill: var(--muted); }
+svg .lbl-acc { fill: var(--accent); }
+svg .lbl-force { fill: var(--force); }
+svg .lbl-good { fill: var(--good); }
+svg .lbl-bad { fill: var(--bad); }
+.s-ink { stroke: var(--fg); fill: none; }
+.s-mut { stroke: var(--muted); fill: none; }
+.s-rule { stroke: var(--rule); fill: none; }
+.s-acc { stroke: var(--accent); fill: none; }
+.s-force { stroke: var(--force); fill: none; }
+.s-good { stroke: var(--good); fill: none; }
+.s-bad { stroke: var(--bad); fill: none; }
+.f-plate { fill: var(--plate); }
+.f-bg { fill: var(--bg); }
+.f-acc { fill: var(--accent); }
+.f-force { fill: var(--force); }
+.f-fg { fill: var(--fg); }
+.f-mut { fill: var(--muted); }
+.f-accsoft { fill: var(--accent); fill-opacity: .12; }
+.f-goodsoft { fill: var(--good); fill-opacity: .14; }
+.dash { stroke-dasharray: 5 5; }
+pre.code { margin: 0; font-family: var(--mono); font-size: 13.5px; line-height: 1.55; background: var(--codebg); border: 1px solid var(--rule); border-radius: 8px; padding: 14px 16px; overflow-x: auto; tab-size: 4; }
+pre.code .c { color: var(--muted); font-style: italic; }
+pre.code .k { color: var(--accent); }
+.file { font-family: var(--mono); font-size: 12.5px; color: var(--muted); margin-bottom: -10px; }
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 500; }
+td.num { font-variant-numeric: tabular-nums; font-family: var(--mono); }
+.tablewrap { overflow-x: auto; }
+ul { margin: 0; padding-left: 22px; max-width: 66ch; display: flex; flex-direction: column; gap: 6px; }
+.note { font-size: 15px; border: 1px dashed var(--rule); border-radius: 8px; padding: 12px 14px; color: var(--muted); max-width: none; }
+.note strong { color: var(--fg); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13.5px; color: var(--muted); }
+.legend i { display: inline-block; width: 18px; height: 3px; vertical-align: 4px; margin-right: 6px; border-radius: 2px; }
+
+/* Orbit lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 18px; align-items: start; }
+@media (max-width: 680px) { .lab { grid-template-columns: minmax(0, 1fr); } }
+.lab canvas { width: 100%; aspect-ratio: 1; max-width: 100%; border-radius: 8px; background: var(--bg); display: block; }
+.controls { display: flex; flex-direction: column; gap: 14px; font-size: 14.5px; min-width: 0; }
+.controls label { display: flex; flex-direction: column; gap: 4px; }
+.controls .row { display: flex; align-items: center; gap: 8px; }
+.controls input[type=range] { width: 100%; accent-color: var(--accent); }
+.controls output { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.btns { display: flex; gap: 8px; flex-wrap: wrap; }
+button { font: inherit; font-size: 14px; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--rule); background: var(--plate); color: var(--fg); cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); color: var(--plate); border-color: var(--accent); }
+.readout { font-family: var(--mono); font-size: 13px; display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-variant-numeric: tabular-nums; }
+.readout dt { color: var(--muted); }
+.readout dd { margin: 0; text-align: right; }
+.chip { display: inline-block; font-family: var(--mono); font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--rule); color: var(--muted); }
+.chip.on { color: var(--good); border-color: var(--good); }
+.chip.badc { color: var(--bad); border-color: var(--bad); }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.presets button { font-size: 12.5px; padding: 4px 9px; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+<style>
+.crumbs { max-width: 760px; margin: 0 auto 28px; font-size: 14.5px; display: flex; gap: 8px; flex-wrap: wrap; }
+.crumbs a { text-decoration: none; font-weight: 600; }
+.byline { font-size: 14.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Brendon Roberto</a><span aria-hidden="true">/</span><a href="/blog/">Blog</a></nav>
+<main>
+<header>
+  <div class="eyebrow">Rubbley · game/gravity · ADRs 0003, 0006, 0012, 0017, 0018</div>
+  <h1>How Rubbley's gravity works</h1>
+  <p class="byline">By Brendon Roberto · <time datetime="2026-11-06">November 6, 2026</time></p>
+  <p class="lede">Newtonian physics, the few game tweaks laid on top of it, and the strategy behind the moves. Each idea comes with a diagram and the code that implements it. The numbers are the shipped tuning: G = 8, Rubbley starts at mass 10, a movable planet's mass is 250, softening is 1 m and max range is 35 m.</p>
+  <nav class="toc" aria-label="Contents">
+    <a href="#tick"><span>01</span>One physics tick</a>
+    <a href="#newton"><span>02</span>Newton and the mass rule</a>
+    <a href="#soften"><span>03</span>Softening and range</a>
+    <a href="#roles"><span>04</span>Who pulls whom</a>
+    <a href="#gravega"><span>05</span>Gravega multipliers</a>
+    <a href="#anchored"><span>06</span>Anchored bodies</a>
+    <a href="#orbits"><span>07</span>Orbits from first principles</a>
+    <a href="#capture"><span>08</span>The capture assist</a>
+    <a href="#lab"><span>09</span>Orbit lab</a>
+    <a href="#drift"><span>10</span>Drift</a>
+    <a href="#well"><span>11</span>Gravity Wells</a>
+    <a href="#predicate"><span>12</span>What counts as Orbit</a>
+    <a href="#aim"><span>13</span>The aim decides the move</a>
+    <a href="#strategy"><span>14</span>Putting it together</a>
+  </nav>
+</header>
+
+<!-- 01 -->
+<section id="tick">
+  <h2><span class="n">01</span>One physics tick</h2>
+  <p>Every body is a 3D Jolt rigid body locked to the Play Plane (<code>y = 0</code>). It can move only in X and Z and can turn only around Y, so the physics is really 2D. The project's default gravity is zero. A body feels only the forces our code adds, plus the point gravity of any Anchored Body's Area.</p>
+  <figure class="plate">
+    <div class="scroll">
+    <svg viewBox="0 0 720 300" role="img" aria-label="Pipeline of one physics tick">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-mut"/></marker>
+        <marker id="arA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-acc"/></marker>
+        <marker id="arF" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-force"/></marker>
+      </defs>
+      <!-- input -->
+      <rect x="10" y="20" width="150" height="70" rx="8" class="f-bg s-rule"/>
+      <text x="22" y="44" font-weight="600">RubbleyMoves</text>
+      <text x="22" y="62" class="mut">reads input, sets</text>
+      <text x="22" y="78" class="mut">multipliers / Wells</text>
+      <line x1="160" y1="55" x2="200" y2="55" class="s-mut" marker-end="url(#ar)"/>
+      <!-- system -->
+      <rect x="200" y="20" width="330" height="200" rx="8" class="f-bg s-acc"/>
+      <text x="214" y="44" font-weight="600">GravitySystem._physics_process</text>
+      <text x="214" y="62" class="mut mono">priority 100 · gather arrays</text>
+      <rect x="214" y="76" width="300" height="38" rx="6" class="f-plate s-rule"/>
+      <text x="226" y="100">GravitySolver  · Newton pairs</text>
+      <rect x="214" y="122" width="300" height="38" rx="6" class="f-plate s-rule"/>
+      <text x="226" y="146">CaptureAssist  · steer toward a circle</text>
+      <rect x="214" y="168" width="300" height="38" rx="6" class="f-plate s-rule"/>
+      <text x="226" y="192">Drift  · carry along the stage</text>
+      <!-- sum -->
+      <line x1="530" y1="140" x2="560" y2="140" class="s-force" marker-end="url(#arF)"/>
+      <circle cx="580" cy="140" r="18" class="f-plate s-force"/>
+      <text x="572" y="146" font-size="18" class="lbl-force">Σ</text>
+      <text x="560" y="180" class="mono lbl-force">apply_central_</text>
+      <text x="560" y="194" class="mono lbl-force">force(F)</text>
+      <!-- jolt -->
+      <line x1="598" y1="140" x2="620" y2="140" class="s-mut" marker-end="url(#ar)"/>
+      <rect x="620" y="60" width="92" height="160" rx="8" class="f-bg s-ink"/>
+      <text x="632" y="84" font-weight="600">Jolt</text>
+      <text x="632" y="108" class="mono">v += F/m·dt</text>
+      <text x="632" y="128" class="mono">damp v</text>
+      <text x="632" y="148" class="mono">cap |v|</text>
+      <text x="632" y="168" class="mono">x += v·dt</text>
+      <text x="632" y="196" class="mut" font-size="12">semi-implicit</text>
+      <text x="632" y="210" class="mut" font-size="12">Euler</text>
+      <!-- side forces -->
+      <rect x="10" y="240" width="250" height="48" rx="8" class="f-bg s-rule"/>
+      <text x="22" y="260" font-weight="600">GravityWell</text>
+      <text x="22" y="278" class="mut">pushes its bodies itself</text>
+      <rect x="290" y="240" width="250" height="48" rx="8" class="f-bg s-rule"/>
+      <text x="302" y="260" font-weight="600">AnchoredPull (Area3D)</text>
+      <text x="302" y="278" class="mut">Godot point gravity</text>
+      <path d="M260 264 C 560 264, 640 260, 650 222" class="s-mut dash" marker-end="url(#ar)"/>
+    </svg>
+    </div>
+    <figcaption>Each tick, forces from three independent contributors are summed and applied once per body. Gravity Wells and Anchored Bodies feed the same integrator from outside the system.</figcaption>
+  </figure>
+  <p><strong>Why the integration method matters.</strong> Jolt updates velocity first and then moves the body using the <em>new</em> velocity. This is semi-implicit (symplectic) Euler. In plain Euler, energy creeps upward and every orbit slowly spirals outward. In symplectic Euler, energy wobbles but doesn't drift, so a real, physics-driven orbit stays stable for minutes.</p>
+  <div class="formula">damping:   dv/dt = −c·v      ⇒   v(t) = v₀·e^(−c·t)</div>
+  <p>Damping removes a fraction <code>c</code> of a body's speed each second. Drift and the capture assist both have to pay this back.</p>
+  <div class="file">game/bodies/play_plane_body.gd</div>
+<pre class="code">func _ready() -> void:
+	axis_lock_linear_y = true       # can't leave the plane
+	axis_lock_angular_x = true      # spins only around Y
+	axis_lock_angular_z = true
+	linear_damp_mode = RigidBody3D.DAMP_MODE_REPLACE
+	linear_damp = tuning.linear_damp_per_second
+
+func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
+	state.linear_velocity = state.linear_velocity.limit_length(tuning.speed_cap_m_per_s)</pre>
+</section>
+
+<!-- 02 -->
+<section id="newton">
+  <h2><span class="n">02</span>Newton and the mass rule</h2>
+  <p>Two masses pull on each other with equal and opposite forces. The acceleration each one feels is that force divided by its own mass.</p>
+  <div class="formula">F = G · m₁ · m₂ / d²          a₁ = F / m₁        a₂ = F / m₂</div>
+  <figure class="plate">
+    <div class="scroll">
+    <svg viewBox="0 0 720 220" role="img" aria-label="Equal forces, unequal accelerations">
+      <defs>
+        <marker id="arA2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-acc"/></marker>
+        <marker id="arF2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-force"/></marker>
+      </defs>
+      <line x1="120" y1="110" x2="560" y2="110" class="s-rule dash"/>
+      <text x="320" y="100" class="mut mono">d = 16 m</text>
+      <circle cx="120" cy="110" r="14" class="f-acc"/>
+      <text x="92" y="150">Rubbley</text><text x="92" y="166" class="mut mono">m = 10</text>
+      <circle cx="560" cy="110" r="62" class="f-mut" fill-opacity=".35"/>
+      <circle cx="560" cy="110" r="62" class="s-ink"/>
+      <text x="530" y="196">Planet</text><text x="530" y="212" class="mut mono">m = 250</text>
+      <!-- forces -->
+      <line x1="136" y1="78" x2="226" y2="78" class="s-force" stroke-width="3" marker-end="url(#arF2)"/>
+      <text x="136" y="68" class="lbl-force mono">F ≈ 77.7 N</text>
+      <line x1="544" y1="38" x2="454" y2="38" class="s-force" stroke-width="3" marker-end="url(#arF2)"/>
+      <text x="436" y="28" class="lbl-force mono">F ≈ 77.7 N</text>
+      <!-- accels -->
+      <line x1="136" y1="132" x2="380" y2="132" class="s-acc" stroke-width="3" marker-end="url(#arA2)"/>
+      <text x="230" y="152" class="lbl-acc mono">a = 7.77 m/s²</text>
+      <line x1="496" y1="132" x2="486" y2="132" class="s-acc" stroke-width="3" marker-end="url(#arA2)"/>
+      <text x="380" y="172" class="lbl-acc mono">a = 0.31 m/s²</text>
+    </svg>
+    </div>
+    <figcaption>The forces are equal (amber); the accelerations (blue) differ by the mass ratio, 25×. The GDD's rule that "the heavier body is the centre point" follows from this. No line of code checks which body is heavier.</figcaption>
+  </figure>
+</section>
+
+<!-- 03 -->
+<section id="soften">
+  <h2><span class="n">03</span>Softening and range</h2>
+  <p>As <code>d → 0</code>, <code>1/d²</code> goes to infinity, and two bodies grazing each other would shoot apart. Plummer softening adds a small length <code>ε</code> so the pull peaks and then falls back to zero at contact. Far away it's ordinary Newton.</p>
+  <div class="formula">F = G·m₁·m₂ · d / (d² + ε²)^1.5
+
+d ≫ ε :  (d² + ε²)^1.5 ≈ d³   ⇒   F ≈ G·m₁·m₂ / d²
+d → 0 :  F → 0             peak at d = ε/√2</div>
+  <figure class="plate">
+    <svg id="chart-soften" viewBox="0 0 720 300" role="img" aria-label="Pull versus distance, Newton and softened"></svg>
+    <div class="legend"><span><i style="background:var(--muted)"></i>Pure Newton, GM/d²</span><span><i style="background:var(--accent)"></i>Softened, ε = 1 m</span></div>
+    <figcaption>Acceleration toward a 250-mass planet (GM = 2000 m³/s²) over the first 6 m. Past about 3 m the two curves match. Beyond the 35 m max range the pull is cut to zero.</figcaption>
+  </figure>
+  <div class="file">game/gravity/gravity_solver.gd</div>
+<pre class="code">for i in count:
+	if roles[i] != GravityBody.Role.CELESTIAL:
+		continue                                   # only Celestial bodies pull
+	for j in count:
+		var mutual := roles[j] == GravityBody.Role.CELESTIAL
+		# A Celestial pair is computed once, from its lower index.
+		if j == i or (mutual and j &lt; i) or roles[j] == GravityBody.Role.ANCHORED:
+			continue
+		var offset := positions[j] - positions[i]  # vector i → j, length d
+		var distance_squared := offset.length_squared()
+		if distance_squared > max_range_squared or distance_squared == 0.0:
+			continue
+		var softened := distance_squared + softening_squared
+		var pair_multiplier: float = (
+			multipliers[i] * multipliers[j]
+			* pair_multipliers.get(Vector2i(mini(i, j), maxi(i, j)), 1.0)
+		)
+		# offset supplies both the direction and the extra factor of d
+		var force := (
+			offset * (_tuning.gravitational_constant * masses[i] * masses[j] * pair_multiplier)
+			/ (softened * sqrt(softened))
+		)
+		result[j] -= force        # j is pulled toward i
+		if mutual:
+			result[i] += force    # and i toward j: Newton's third law</pre>
+  <p>The formula has <code>d / (d²+ε²)^1.5</code> rather than <code>1/d²</code> because <code>offset</code> is not a unit vector. Its length is already <code>d</code>, so multiplying by it gives the direction and the extra <code>d</code> together, and the code never needs a <code>normalized()</code> call.</p>
+</section>
+
+<!-- 04 -->
+<section id="roles">
+  <h2><span class="n">04</span>Who pulls whom</h2>
+  <p>In real physics every pair of masses attracts, so the work grows with the square of the body count. Rubbley's phone budget can't afford that, so each body has one of three roles.</p>
+  <figure class="plate">
+    <div class="scroll">
+    <svg viewBox="0 0 720 210" role="img" aria-label="Celestial, Passive and Anchored roles">
+      <defs>
+        <marker id="arF3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-force"/></marker>
+      </defs>
+      <circle cx="90" cy="70" r="16" class="f-acc"/><text x="66" y="110">Rubbley</text>
+      <circle cx="300" cy="70" r="30" class="f-mut" fill-opacity=".4"/><text x="270" y="122">Planet</text>
+      <line x1="110" y1="70" x2="266" y2="70" class="s-force" stroke-width="2" marker-start="url(#arF3)" marker-end="url(#arF3)"/>
+      <text x="138" y="60" class="lbl-force" font-size="12">mutual (Celestial ↔ Celestial)</text>
+      <rect x="84" y="164" width="12" height="12" class="f-fg" transform="rotate(20 90 170)"/><text x="62" y="200">Debris</text>
+      <line x1="90" y1="156" x2="90" y2="92" class="s-force" stroke-width="2" marker-end="url(#arF3)"/>
+      <text x="100" y="138" class="lbl-force" font-size="12">one-way (Passive)</text>
+      <circle cx="560" cy="100" r="58" class="f-mut" fill-opacity=".25"/>
+      <circle cx="560" cy="100" r="58" class="s-ink"/>
+      <circle cx="560" cy="100" r="88" class="s-mut dash"/>
+      <text x="520" y="104">Anchored</text>
+      <text x="490" y="205" class="mut" font-size="12">Area point gravity, never moves</text>
+    </svg>
+    </div>
+  </figure>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Role</th><th>Pulls</th><th>Is pulled</th><th>Examples</th></tr></thead>
+    <tbody>
+      <tr><td>Celestial</td><td>yes, mutually</td><td>yes</td><td>Rubbley, planets, asteroids, large enemies</td></tr>
+      <tr><td>Passive</td><td>no</td><td>yes</td><td>debris, materials, small enemies</td></tr>
+      <tr><td>Anchored</td><td>yes, via its Area</td><td>no (frozen)</td><td>big level planets</td></tr>
+    </tbody>
+  </table></div>
+  <p>The cost becomes N<sub>celestial</sub> × N<sub>total</sub>. A hundred debris pieces with three Celestial Bodies cost about 300 pair evaluations, not about 5,000.</p>
+</section>
+
+<!-- 05 -->
+<section id="gravega">
+  <h2><span class="n">05</span>Gravega multipliers: how Attract works</h2>
+  <p>Attract never pushes a body directly. It raises a multiplier, and the solver turns that into force on the next tick. A pair's pull is scaled by both bodies' own multipliers and by any multiplier set on that particular pair.</p>
+  <div class="formula">F_pair = G·m₁·m₂ · (mult₁ · mult₂ · pair_mult) / (d² + ε²)^1.5</div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Move</th><th>What it sets</th><th>Shipped value</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>Attract on self</td><td><code>gravega_multiplier</code></td><td class="num">× 3.0</td><td>every pair Rubbley is in pulls 3× harder</td></tr>
+      <tr><td>Targeted Attract</td><td><code>pair_multipliers[target]</code></td><td class="num">× 2.0</td><td>only the Rubbley↔target pair</td></tr>
+    </tbody>
+  </table></div>
+  <p>The force stays mutual, so the mass rule still applies. Attracting a planet mostly pulls Rubbley to the planet. Attracting a Passive piece of debris pulls only the debris, because Passive bodies pull nothing back.</p>
+  <div class="file">game/bodies/rubbley/rubbley_moves.gd</div>
+<pre class="code">match target.kind:
+	AimTarget.Kind.RUBBLEY:
+		_attracting_self = true
+		gravity_body.gravega_multiplier = stats.attract_self_multiplier
+	AimTarget.Kind.CELESTIAL_BODY:
+		_attract_target = targetables[target.body_index]
+		gravity_body.pair_multipliers[_attract_target.gravity_body] = (
+			stats.attract_celestial_multiplier
+		)
+	AimTarget.Kind.EMPTY_SPACE:
+		_place_gravity_well(aim)</pre>
+  <p>The target is locked when the button goes down, nothing changes while it's held, and the multiplier is reset on release. <code>RubbleyMoves</code> runs before the <code>GravitySystem</code> (which uses <code>PHYSICS_PRIORITY = 100</code>), so a press takes effect on the same tick.</p>
+</section>
+
+<!-- 06 -->
+<section id="anchored">
+  <h2><span class="n">06</span>Anchored bodies</h2>
+  <p>A big level planet is frozen in place. It still has to pull, and Godot's <code>Area3D</code> point gravity does that cheaply. With a unit distance of 1 m, Godot computes <code>g = strength / d²</code>: exact inverse-square, with no softening. The system sets the strength every tick to <code>G × mass × multiplier</code>.</p>
+  <div class="file">game/gravity/anchored_pull.gd</div>
+<pre class="code">gravity_space_override = Area3D.SPACE_OVERRIDE_COMBINE
+gravity_point = true
+gravity_point_unit_distance = 1.0   # g(d) = strength / d²
+
+func pull(strength: float, range_m: float) -> void:
+	gravity = strength               # G × M × multiplier, set by GravitySystem each tick</pre>
+  <p>When a Targeted Attract multiplies a pair that includes an Anchored Body, the Area already supplies the ×1 share. The solver's <code>_add_anchored_pair_pull</code> adds only the extra <code>(pair_multiplier − 1)</code> part on the moving body.</p>
+</section>
+
+<!-- 07 -->
+<section id="orbits">
+  <h2><span class="n">07</span>Orbits from first principles</h2>
+  <p>No orbit is scripted. A body moving sideways fast enough keeps falling toward the planet and keeps missing it. For a circle, gravity has to supply exactly the centripetal acceleration:</p>
+  <div class="formula">v² / r = a(r)    ⇒    v_circ = √(a · r)        pure Newton:  √(GM / r)
+
+Rubbley at 16 m from a 250-mass planet:
+  a ≈ 7.77 m/s²   v_circ ≈ 11.1 m/s   one lap ≈ 2π·16 / 11.1 ≈ 9 s</div>
+  <figure class="plate">
+    <svg id="chart-conics" viewBox="0 0 720 420" role="img" aria-label="Orbit shapes for different launch speeds"></svg>
+    <div class="legend" id="legend-conics"></div>
+    <figcaption>Launch sideways from the dot at k × circular speed. Below 1 the launch point is the farthest point of an ellipse. Above 1 it's the closest point. At √2 ≈ 1.41 and above, the body has more kinetic energy than the planet's binding energy (½v² ≥ GM/r) and escapes. The shaded disc is the planet's 8 m radius: the k = 0.75 ellipse dips to 7.2 m and would hit it.</figcaption>
+  </figure>
+  <div class="file">game/gravity/orbit_launch.gd</div>
+<pre class="code">var on_plane := Vector3(offset.x, 0.0, offset.z)
+var radius := on_plane.length()
+var across := Vector3.UP.cross(on_plane) / radius   # offset turned 90° in the plane
+if not anticlockwise:
+	across = -across
+return across * speed_multiple * sqrt(pull_strength / radius)</pre>
+  <h3>Vis-viva: the slowest safe launch</h3>
+  <p>Debris is scattered with random launch speeds, and none of it may crash into the planet. Two conservation laws link the launch point (radius <code>r</code>, speed <code>v = k·v_circ</code>) to the closest point (<code>rₚ</code>, <code>vₚ</code>):</p>
+  <div class="formula">angular momentum:   r · v = rₚ · vₚ
+energy:             ½v² − GM/r = ½vₚ² − GM/rₚ
+
+⇒  rₚ = r·k² / (2 − k²)     ⇒     k = √( 2rₚ / (r + rₚ) )</div>
+<pre class="code">static func slowest_speed_multiple(radius_m: float, lowest_m: float) -> float:
+	return sqrt(2.0 * lowest_m / (radius_m + lowest_m))</pre>
+  <p><code>DebrisField</code> raises each piece's random speed multiple to at least this value, so every orbit stays clear of the surface.</p>
+</section>
+
+<!-- 08 -->
+<section id="capture">
+  <h2><span class="n">08</span>The capture assist</h2>
+  <p>Players almost never arrive at exactly circular speed and exactly sideways. The capture assist is a <em>proportional controller</em>: inside a heavier body's Capture Radius (20 m for a planet), it adds a force that steers the body's velocity toward the ideal circular velocity at its current distance.</p>
+  <figure class="plate">
+    <div class="scroll">
+    <svg viewBox="0 0 720 300" role="img" aria-label="Capture assist vectors">
+      <defs>
+        <marker id="aA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-acc"/></marker>
+        <marker id="aG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--good)"/></marker>
+        <marker id="aF" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-force"/></marker>
+        <marker id="aM" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-mut"/></marker>
+      </defs>
+      <circle cx="200" cy="160" r="130" class="s-rule dash"/>
+      <text x="96" y="22" class="mut" font-size="12">Capture Radius</text>
+      <circle cx="200" cy="160" r="44" class="f-mut" fill-opacity=".35"/>
+      <text x="178" y="165">primary</text>
+      <circle cx="200" cy="160" r="90" class="s-good dash" stroke-opacity=".6"/>
+      <!-- body at angle -30deg: (200+90cos, 160-90sin) -->
+      <circle cx="278" cy="115" r="9" class="f-acc"/>
+      <line x1="200" y1="160" x2="278" y2="115" class="s-mut" marker-end="url(#aM)"/>
+      <text x="222" y="126" class="mut mono" transform="rotate(-30 222 126)">outward</text>
+      <!-- target tangent: anticlockwise in screen: direction (-sin, -cos) of angle 30 => (-0.5,-0.866) -->
+      <line x1="278" y1="115" x2="233" y2="37" class="s-good" stroke-width="3" marker-end="url(#aG)"/>
+      <text x="168" y="40" class="lbl-good mono">target</text>
+      <!-- actual velocity: more inward and slower -->
+      <line x1="278" y1="115" x2="320" y2="60" class="s-acc" stroke-width="3" marker-end="url(#aA)"/>
+      <text x="326" y="60" class="lbl-acc mono">v (relative)</text>
+      <!-- error from v tip to target tip -->
+      <line x1="318" y1="60" x2="238" y2="40" class="s-force dash" stroke-width="2" marker-end="url(#aF)"/>
+      <text x="252" y="22" class="lbl-force mono" font-size="12">target − v</text>
+      <!-- explanation text -->
+      <text x="400" y="80" font-weight="600">Each tick</text>
+      <text x="400" y="104" class="mono" font-size="12">v_circ = √(pull · d)</text>
+      <text x="400" y="124" class="mono" font-size="12">skip if |v| > 1.3 · v_circ</text>
+      <text x="400" y="144" class="mono" font-size="12">target ⟂ outward, same way round</text>
+      <text x="400" y="164" class="mono" font-size="12">F = m·[k·(target − v)</text>
+      <text x="400" y="184" class="mono" font-size="12">      + c·(target + v_primary)]</text>
+      <text x="400" y="214" class="mut" font-size="12">k = 2 /s closes the gap; the c·(…) term</text>
+      <text x="400" y="230" class="mut" font-size="12">pays back damping so a circle holds.</text>
+    </svg>
+    </div>
+    <figcaption>The assist pushes along the amber error vector, toward the green circular velocity. It only adds force, so the body stays a normal dynamic body that a Repel or a collision can still knock out.</figcaption>
+  </figure>
+  <div class="formula">a = k · (v_target − v)    ⇒    error(t) = error₀ · e^(−k·t)      time constant 1/k = 0.5 s</div>
+  <figure class="plate">
+    <svg id="chart-decay" viewBox="0 0 720 240" role="img" aria-label="Velocity error decay"></svg>
+    <figcaption>How much of the velocity error is left after the assist takes over (ignoring gravity's own effect). About 37% remains after 0.5 s and about 5% after 1.5 s.</figcaption>
+  </figure>
+  <div class="file">game/gravity/capture_assist.gd</div>
+<pre class="code">var pull := _pull(primary, i, distance, masses, roles, multipliers) * pair_multiplier
+var circular_speed := sqrt(pull * distance)
+var relative := _on_plane(velocities[i] - velocities[primary])
+if relative.length() > circular_speed * _tuning.capture_speed_multiple:
+	continue                                    # a flyby, not a capture
+var outward := offset / distance
+# Keep the way the body already goes round; one falling straight in goes anticlockwise.
+var way_round := -1.0 if outward.cross(relative).y &lt; 0.0 else 1.0
+var target := Vector3.UP.cross(outward) * way_round * circular_speed
+# The body's own damping would slow even a circular Orbit, so the assist pays it back.
+var damping_payback := (target + _on_plane(velocities[primary])) * linear_damps[i]
+result[i] = (
+	((target - relative) * _tuning.capture_assist_rate_per_second + damping_payback)
+	* masses[i]
+)</pre>
+  <ul>
+    <li><strong>The 1.3× gate</strong> sits just below escape speed (√2 ≈ 1.41×). A slow approach gets caught and a fast flyby is left alone, so the player stays in control.</li>
+    <li><strong><code>way_round</code></strong> uses the sign of the cross product's y component, which says clockwise or anticlockwise. The assist never reverses your direction around the planet.</li>
+    <li><strong>The primary</strong> is the nearest <em>heavier</em> pulling body whose Capture Radius you are inside.</li>
+  </ul>
+</section>
+
+<!-- 09 -->
+<section id="lab">
+  <h2><span class="n">09</span>Orbit lab</h2>
+  <p>A small re-implementation of sections 03, 07 and 08 using the shipped numbers. Rubbley launches sideways from 16 m. Try 0.75 with the assist off (he hits the planet), then turn the assist on. The planet is held still here, and Drift is off.</p>
+  <figure class="plate">
+    <div class="lab">
+      <canvas id="lab-canvas" width="640" height="640" aria-label="Orbit simulation"></canvas>
+      <div class="controls">
+        <label for="lab-k">Launch speed multiple
+          <span class="row"><input id="lab-k" type="range" min="0.5" max="1.6" step="0.01" value="0.75"><output id="lab-k-out">0.75×</output></span>
+        </label>
+        <div class="presets" aria-label="Presets">
+          <button type="button" data-k="0.75">0.75</button>
+          <button type="button" data-k="1">1.0</button>
+          <button type="button" data-k="1.25">1.25</button>
+          <button type="button" data-k="1.45">1.45</button>
+        </div>
+        <label class="row" for="lab-assist"><input id="lab-assist" type="checkbox"> Capture assist (k = 2 /s, gate 1.3×)</label>
+        <label class="row" for="lab-attract"><input id="lab-attract" type="checkbox"> Attract on self (× 3)</label>
+        <div class="btns">
+          <button type="button" class="primary" id="lab-launch">Launch</button>
+          <button type="button" id="lab-pause">Pause</button>
+        </div>
+        <dl class="readout">
+          <dt>time</dt><dd id="r-t">0.0 s</dd>
+          <dt>distance</dt><dd id="r-d">16.0 m</dd>
+          <dt>speed</dt><dd id="r-v">0.0 m/s</dd>
+          <dt>v_circ here</dt><dd id="r-vc">0.0 m/s</dd>
+          <dt>swept</dt><dd id="r-sw">0°</dd>
+        </dl>
+        <div><span class="chip" id="r-state">tracking</span></div>
+      </div>
+    </div>
+    <figcaption>Runs at 60 ticks per second with semi-implicit Euler, at 2× speed. Rubbley's damping is 0.03/s and his speed cap is 20 m/s. The rings show the 20 m Capture Radius and the 25 m Orbit limit (1.25×). The status chip uses the Orbit predicate from section 12.</figcaption>
+  </figure>
+</section>
+
+<!-- 10 -->
+<section id="drift">
+  <h2><span class="n">10</span>Drift</h2>
+  <p>Drift carries Rubbley along the level at 4.09 m/s, on top of his own motion. Setting velocity directly would fight the physics engine, so Drift works out the force that produces the change it wants, using <code>F = m·a</code> in reverse.</p>
+  <div class="formula">F = m · [ (carry − carried_last_tick) / dt   +   c · carry ]
+          ↑ change in carried velocity           ↑ cancel damping on it</div>
+  <div class="file">game/gravity/drift.gd</div>
+<pre class="code">var on_plane := Vector3(direction.x, 0.0, direction.z).normalized()
+var carry := on_plane * _tuning.drift_speed_m_per_s
+result[drifting_index] = ((carry - _carried) / delta + carry * linear_damp) * mass
+_carried = carry</pre>
+  <p>On the first tick the whole 4.09 m/s is added in one go. After that the first term is zero unless the stage's direction turns. Tests check the result against the closed-form distance, where Rubbley's own starting speed fades under damping:</p>
+  <div class="formula">distance = drift_speed · (t₂ − t₁)  +  v₀ · (e^(−c·t₁) − e^(−c·t₂)) / c</div>
+</section>
+
+<!-- 11 -->
+<section id="well">
+  <h2><span class="n">11</span>Gravity Wells: deliberately not Newtonian</h2>
+  <p>An Attract on empty space places a Well. Its pull is linear: strongest at the centre and zero at the edge. It's multiplied by each body's mass, so every body gets the <em>same</em> acceleration whatever it weighs. The Well behaves like a pocket of bent space, not like a heavy object.</p>
+  <div class="formula">a(d) = S · (1 − d/R)        S = 50 m/s²,  R = 24 m,  no pull inside 0.36 m
+
+falling in from the edge:  v² = 2∫₀ᴿ S(1 − d/R) dd = S·R = 1200   ⇒   v ≈ 34.6 m/s  (cap: 20)</div>
+  <figure class="plate">
+    <svg id="chart-well" viewBox="0 0 720 260" role="img" aria-label="Gravity Well pull versus distance"></svg>
+    <figcaption>A Well's pull across its 24 m radius. Nothing damps it, so a falling body overshoots the centre and swings through. If the Well expires mid-swing (after 3 s), the body keeps that velocity. That's the "fling". In about one Well in five the fling nearly cancels Drift and leaves Rubbley almost stopped; ADR 0018 accepts this.</figcaption>
+  </figure>
+  <div class="file">game/gravity/gravity_well.gd</div>
+<pre class="code">func pull_on(point: Vector3) -> Vector3:
+	var offset := global_position - point
+	offset.y = 0.0
+	var distance := offset.length()
+	if distance &lt;= CORE_M or distance >= radius_m:
+		return Vector3.ZERO           # the core stops jitter at the exact centre
+	return offset / distance * (1.0 - distance / radius_m)
+
+# in _physics_process, for each overlapping body:
+body.apply_central_force(pull_on(body.global_position) * strength * body.mass)</pre>
+  <p>Point gravity wasn't an option here: Godot's Area gravity is either uniform or inverse-square, and a uniform pull strong enough to notice held Rubbley in place. Only one Well exists at a time. Placing a new one frees the old one immediately, so the old one doesn't pull for an extra tick.</p>
+</section>
+
+<!-- 12 -->
+<section id="predicate">
+  <h2><span class="n">12</span>What counts as Orbit</h2>
+  <p>Jolt isn't reproducible across platforms, so neither the game nor the tests compare exact positions. They check outcomes, and both use one shared predicate. A body is in Orbit when all three of these hold:</p>
+  <figure class="plate">
+    <div class="scroll">
+    <svg viewBox="0 0 720 300" role="img" aria-label="Orbit predicate">
+      <defs><marker id="aGo" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--good)"/></marker></defs>
+      <circle cx="180" cy="150" r="135" class="s-bad dash"/>
+      <circle cx="180" cy="150" r="108" class="s-rule dash"/>
+      <path d="M180,150 m-96,0 a96,96 0 1,0 192,0 a96,96 0 1,0 -192,0 M180,150 m-74,0 a74,74 0 1,1 148,0 a74,74 0 1,1 -148,0" class="f-goodsoft" fill-rule="evenodd"/>
+      <circle cx="180" cy="150" r="34" class="f-mut" fill-opacity=".4"/>
+      <path d="M 265 150 A 85 85 0 1 0 263 168" class="s-good" stroke-width="2.5" marker-end="url(#aGo)"/>
+      <circle cx="265" cy="150" r="6" class="f-acc"/>
+      <text x="360" y="64" font-weight="600">1 · Stay close</text>
+      <text x="360" y="84" class="mut">within 1.25 × Capture Radius (red ring)</text>
+      <text x="360" y="124" font-weight="600">2 · Stay round</text>
+      <text x="360" y="144" class="mut">farthest ≤ 1.3 × closest (green band)</text>
+      <text x="360" y="184" font-weight="600">3 · Go all the way round</text>
+      <text x="360" y="204" class="mut">swept angle ≥ 360°; leaving the band</text>
+      <text x="360" y="220" class="mut">restarts the count</text>
+    </svg>
+    </div>
+  </figure>
+  <div class="file">game/gravity/orbit.gd</div>
+<pre class="code">_closest_m = minf(_closest_m, distance)
+_furthest_m = maxf(_furthest_m, distance)
+if _furthest_m > _closest_m * _tuning.orbit_radius_band:
+	_start(on_plane)                                  # broke the band: count again
+	return
+_travelled_rad += _last_offset.angle_to(on_plane)   # signed: going backwards subtracts
+_last_offset = on_plane</pre>
+  <p>Simulation tests run each scenario from 5 starting conditions: one canonical, plus four perturbed by ±5% speed, ±5° angle and ±5% distance. They assert bands of outcomes rather than exact positions. For example: released at 0.8 × Capture Radius at 0.9–1.1× circular speed, the body is in Orbit within 3 periods and stays in Orbit for 2 more.</p>
+</section>
+
+<!-- 13 -->
+<section id="aim">
+  <h2><span class="n">13</span>The aim decides the move</h2>
+  <p>There are only three inputs. What's under the aim when the input starts decides which version of the move fires, and the target stays locked until release.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Under the aim</th><th>Attract (held)</th><th>Repel (one-shot)</th></tr></thead>
+    <tbody>
+      <tr><td>Rubbley</td><td>Attract on self, × 3 on all his pairs</td><td>Repel Pulse (stuns)</td></tr>
+      <tr><td>Glowing Celestial Body</td><td>Targeted Attract, × 2 on one pair</td><td>Targeted Repel</td></tr>
+      <tr><td>Empty space</td><td>Gravity Well</td><td>Gravity Ripple</td></tr>
+    </tbody>
+  </table></div>
+  <p>The third input, <strong>Spin</strong>, ignores the aim. It fires whatever else is going on.</p>
+  <figure class="plate">
+    <div class="scroll">
+    <svg viewBox="0 0 720 220" role="img" aria-label="Aim measured to the body's edge">
+      <circle cx="110" cy="110" r="22" class="f-acc"/>
+      <circle cx="110" cy="110" r="22" class="s-ink"/>
+      <text x="80" y="160">Rubbley</text>
+      <text x="40" y="180" class="mut" font-size="12">checked first; wins ties</text>
+      <circle cx="470" cy="110" r="80" class="f-mut" fill-opacity=".3"/>
+      <circle cx="470" cy="110" r="80" class="s-ink"/>
+      <circle cx="470" cy="110" r="3" class="f-fg"/>
+      <!-- aim point inside edge at (408,110): distance 62, radius 80 -> -18 -->
+      <line x1="470" y1="110" x2="408" y2="110" class="s-mut"/>
+      <line x1="408" y1="122" x2="390" y2="122" class="s-force" stroke-width="3"/>
+      <circle cx="408" cy="110" r="6" class="s-acc" stroke-width="2.5"/>
+      <line x1="400" y1="110" x2="416" y2="110" class="s-acc" stroke-width="2"/>
+      <line x1="408" y1="102" x2="408" y2="118" class="s-acc" stroke-width="2"/>
+      <text x="350" y="92" class="lbl-acc mono">aim</text>
+      <text x="320" y="146" class="lbl-force mono">d − r = −18 px</text>
+      <text x="480" y="104" class="mono mut" font-size="12">centre</text>
+      <text x="560" y="40" class="mut" font-size="12">negative = inside;</text>
+      <text x="560" y="56" class="mut" font-size="12">most-inside body wins</text>
+    </svg>
+    </div>
+  </figure>
+  <div class="file">game/bodies/rubbley/aim_target.gd</div>
+<pre class="code">if on_plane.distance_to(_flat(rubbley_at)) &lt;= rubbley_radius_m:
+	target.kind = Kind.RUBBLEY            # Rubbley wins ties
+	return target
+var deepest := 0.0
+for i in body_positions.size():
+	# Signed distance to the edge: below 0 means the aim is inside the body.
+	var past_edge := on_plane.distance_to(_flat(body_positions[i])) - body_radii[i]
+	if past_edge &lt;= deepest:
+		deepest = past_edge
+		target.kind = Kind.CELESTIAL_BODY
+		target.body_index = i</pre>
+  <p>Measuring to the edge rather than the centre keeps a big planet easy to hit, including one you're orbiting close to.</p>
+</section>
+
+<!-- 14 -->
+<section id="strategy">
+  <h2><span class="n">14</span>Putting it together: orbital traversal</h2>
+  <p>The design approach: build consistent physics first (Newton, mutual forces, orbits that come from the physics), then add small, separate assist forces that make it playable without putting anything on rails. Because everything stays dynamic, Repel, collisions and Wells always interact believably.</p>
+  <figure class="plate">
+    <div class="scroll">
+    <svg viewBox="0 0 720 320" role="img" aria-label="Orbit, slingshot, capture loop">
+      <defs>
+        <marker id="sA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-acc"/></marker>
+        <marker id="sF" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-force"/></marker>
+        <marker id="sG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--good)"/></marker>
+      </defs>
+      <!-- planet A -->
+      <circle cx="160" cy="180" r="50" class="f-mut" fill-opacity=".35"/>
+      <circle cx="160" cy="180" r="95" class="s-good" stroke-width="2"/>
+      <circle cx="160" cy="180" r="125" class="s-rule dash"/>
+      <text x="140" y="185">A</text>
+      <!-- release point at top-right angle -40: (160+95cos40, 180-95sin40) = (233, 119) -->
+      <circle cx="233" cy="119" r="8" class="f-acc"/>
+      <!-- orbital velocity tangent (anticlockwise in screen => direction (-sin40,-cos40)?) choose clockwise visually: tangent to the right/up: (sin40, ... ) use (0.64,0.77) up-right -->
+      <line x1="233" y1="119" x2="268" y2="161" class="s-acc" stroke-width="2.5" marker-end="url(#sA)"/>
+      <text x="274" y="176" class="lbl-acc mono" font-size="12">orbital v</text>
+      <!-- repel push along A->Rubbley: direction (0.77,-0.64) -->
+      <line x1="233" y1="119" x2="279" y2="81" class="s-force" stroke-width="2.5" marker-end="url(#sF)"/>
+      <text x="286" y="80" class="lbl-force mono" font-size="12">Repel J/m</text>
+      <!-- resultant -->
+      <path d="M233 119 C 330 125, 420 140, 505 170" class="s-ink dash" stroke-width="2" marker-end="url(#sA)"/>
+      <text x="350" y="150" class="mono" font-size="12">exit = v + J/m</text>
+      <!-- planet B -->
+      <circle cx="580" cy="200" r="40" class="f-mut" fill-opacity=".35"/>
+      <circle cx="580" cy="200" r="110" class="s-rule dash"/>
+      <text x="572" y="205">B</text>
+      <text x="610" y="96" class="mut" font-size="12">B's Capture Radius</text>
+      <!-- steps -->
+      <text x="22" y="30" font-weight="600" class="lbl-good">1 · fall in, assist circles you</text>
+      <text x="300" y="30" font-weight="600" class="lbl-force">2 · time the Repel</text>
+      <text x="420" y="300" font-weight="600" class="lbl-acc">3 · Targeted Attract on B pulls you across</text>
+      <text x="22" y="300" font-weight="600">4 · captured again, repeat</text>
+    </svg>
+    </div>
+    <figcaption>Exit velocity = orbital velocity + Repel impulse. Since the orbital part rotates as you go round, <em>when</em> you fire sets the direction you leave in. That timing is the traversal skill.</figcaption>
+  </figure>
+  <ul>
+    <li><strong>Fall in.</strong> Drift carries Rubbley toward a planet. Once he's inside the 20 m Capture Radius and slow enough, the assist eases him into a circle.</li>
+    <li><strong>Steer.</strong> Attract on self (× 3) strengthens every pull on him and draws debris in so he grows. Targeted Attract (× 2) on a distant planet pulls him across the gap.</li>
+    <li><strong>Slingshot.</strong> Targeted Repel is an equal-and-opposite impulse along the Rubbley↔planet line, with <code>Δv = J / m</code> for each body. The heavy planet barely moves, and Rubbley leaves fast.</li>
+    <li><strong>Improvise.</strong> A Gravity Well is a slingshot you can place anywhere for 3 s. It flings anything inside, Rubbley included.</li>
+  </ul>
+  <h3>What's built now</h3>
+  <p>All of this is in the game, in <code>rubbley_moves.gd</code> and the scripts around it:</p>
+  <ul>
+    <li><strong>Repel, all three uses.</strong> A Repel Pulse on Rubbley pushes everything nearby outward and stuns what it reaches. A Gravity Ripple does the same push from a point in empty space. Both give every body up to 50 kg the same speed change, falling off to nothing at the edge, and heavier bodies take a shrinking share. A Targeted Repel is a 250 N·s impulse along the Rubbley↔target line, equal and opposite. An Anchored planet is frozen, so Rubbley takes the whole push.</li>
+    <li><strong>Spin.</strong> A 0.4 s shield reaching 1.5 m past Rubbley's surface, then a 0.6 s lockout. Whatever is closing on him inside it bounces, the lighter body off the heavier, so debris bounces off Rubbley and Rubbley bounces off a planet. He takes no collision damage while it's up. The first 0.1 s is a perfect window, kept for a blast-back once projectiles exist.</li>
+    <li><strong>Stamina</strong> (ADR 0017). One pool of 100 that every move draws on, refilling at 25 per second. Attract drains it while held, 20 per second on self and 10 on a Celestial Body. A Gravity Well costs 35, a Repel Pulse 25, any other Repel 15, and a Spin 10. A move Rubbley can't afford doesn't fire.</li>
+    <li><strong>Mass is health and size.</strong> Rubbley starts at 10 kg and stays between 2 and 100. Collisions knock Mass off him. Debris that touches him during Attract on self is absorbed instead, and its mass is added to his. His radius follows the square root of his Mass, his mesh pops on every pickup, and the camera zooms out as he grows.</li>
+  </ul></section>
+</main>
+
+<script>
+(function () {
+  // ---- tiny GDScript highlighter (comments + keywords) ----
+  const KW = /\b(func|var|const|if|elif|else|for|in|return|continue|match|and|or|not|static|true|false|pass)\b/g;
+  const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  document.querySelectorAll("pre.code").forEach(pre => {
+    pre.innerHTML = pre.textContent.split("\n").map(line => {
+      const h = line.indexOf("#");
+      const code = h >= 0 ? line.slice(0, h) : line;
+      const com = h >= 0 ? line.slice(h) : "";
+      return esc(code).replace(KW, '<span class="k">$1</span>') + (com ? '<span class="c">' + esc(com) + "</span>" : "");
+    }).join("\n");
+  });
+
+  const NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, parent, text) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+
+  // ---- generic line chart ----
+  function chart(svg, o) {
+    const W = 720, H = +svg.getAttribute("viewBox").split(" ")[3];
+    const L = 64, R = 20, T = 18, B = 44;
+    const sx = x => L + (x - o.x0) / (o.x1 - o.x0) * (W - L - R);
+    const sy = y => H - B - (y - o.y0) / (o.y1 - o.y0) * (H - T - B);
+    (o.bands || []).forEach(b => el("rect", { x: sx(b.a), y: T, width: sx(b.b) - sx(b.a), height: H - T - B, class: b.cls }, svg));
+    o.yt.forEach(v => {
+      el("line", { x1: L, x2: W - R, y1: sy(v), y2: sy(v), class: "s-rule" }, svg);
+      el("text", { x: L - 8, y: sy(v) + 4, "text-anchor": "end", class: "mono mut" }, svg, v);
+    });
+    o.xt.forEach(v => el("text", { x: sx(v), y: H - B + 18, "text-anchor": "middle", class: "mono mut" }, svg, v));
+    el("line", { x1: L, x2: W - R, y1: H - B, y2: H - B, class: "s-mut" }, svg);
+    el("text", { x: (L + W - R) / 2, y: H - 6, "text-anchor": "middle", class: "mut" }, svg, o.xl);
+    el("text", { x: 0, y: 0, class: "mut", "text-anchor": "middle", transform: `translate(16 ${(T + H - B) / 2}) rotate(-90)` }, svg, o.yl);
+    const clip = "c" + Math.random().toString(36).slice(2);
+    const cp = el("clipPath", { id: clip }, el("defs", {}, svg));
+    el("rect", { x: L, y: T, width: W - L - R, height: H - T - B }, cp);
+    o.series.forEach(s => {
+      let d = "", pen = false;
+      for (let i = 0; i <= 400; i++) {
+        const x = s.a + (s.b - s.a) * i / 400, y = s.f(x);
+        if (!isFinite(y)) { pen = false; continue; }
+        d += (pen ? "L" : "M") + sx(x).toFixed(1) + "," + sy(Math.min(y, o.y1 * 2)).toFixed(1);
+        pen = true;
+      }
+      el("path", { d, class: s.cls, "stroke-width": s.w || 2.5, "clip-path": `url(#${clip})`, ...(s.dash ? { "stroke-dasharray": "5 5" } : {}) }, svg);
+    });
+    (o.marks || []).forEach(m => {
+      el("circle", { cx: sx(m.x), cy: sy(m.y), r: 4.5, class: m.cls || "f-acc" }, svg);
+      el("text", { x: sx(m.x) + (m.dx || 8), y: sy(m.y) + (m.dy || -8), class: "mono " + (m.tcls || "lbl-acc"), "text-anchor": m.anchor || "start" }, svg, m.t);
+    });
+    (o.vlines || []).forEach(v => {
+      el("line", { x1: sx(v.x), x2: sx(v.x), y1: T, y2: H - B, class: "s-mut dash" }, svg);
+      el("text", { x: sx(v.x) + 6, y: T + 14, class: "mono mut" }, svg, v.t);
+    });
+  }
+
+  const GM = 2000, eps = 1;
+  chart(document.getElementById("chart-soften"), {
+    x0: 0, x1: 6, y0: 0, y1: 1600, xt: [0, 1, 2, 3, 4, 5, 6], yt: [0, 400, 800, 1200, 1600],
+    xl: "distance d (m)", yl: "pull (m/s²)",
+    series: [
+      { a: 0.05, b: 6, f: d => GM / (d * d), cls: "s-mut", dash: true },
+      { a: 0, b: 6, f: d => GM * d / Math.pow(d * d + eps * eps, 1.5), cls: "s-acc" },
+    ],
+    marks: [{ x: Math.SQRT1_2, y: GM * Math.SQRT1_2 / Math.pow(1.5, 1.5), t: "peak ≈ 770 at ε/√2", dx: 10, dy: -6 }],
+  });
+
+  chart(document.getElementById("chart-decay"), {
+    x0: 0, x1: 3, y0: 0, y1: 1, xt: [0, 0.5, 1, 1.5, 2, 2.5, 3], yt: [0, 0.25, 0.5, 0.75, 1],
+    xl: "time since entering the assist (s)", yl: "error left",
+    series: [{ a: 0, b: 3, f: t => Math.exp(-2 * t), cls: "s-force" }],
+    marks: [
+      { x: 0.5, y: Math.exp(-1), t: "37% at 0.5 s", cls: "f-force", tcls: "lbl-force" },
+      { x: 1.5, y: Math.exp(-3), t: "5% at 1.5 s", cls: "f-force", tcls: "lbl-force", dy: -12 },
+    ],
+  });
+
+  chart(document.getElementById("chart-well"), {
+    x0: 0, x1: 28, y0: 0, y1: 50, xt: [0, 4, 8, 12, 16, 20, 24, 28], yt: [0, 10, 20, 30, 40, 50],
+    xl: "distance from the Well's centre (m)", yl: "accel (m/s²)",
+    bands: [{ a: 0, b: 0.36, cls: "f-accsoft" }],
+    series: [{ a: 0.36, b: 24, f: d => 50 * (1 - d / 24), cls: "s-acc" }, { a: 24, b: 28, f: () => 0, cls: "s-acc" }],
+    vlines: [{ x: 24, t: "edge R = 24 m" }],
+    marks: [{ x: 12, y: 25, t: "25 m/s² halfway", dx: 10, dy: -8 }],
+  });
+
+  // ---- orbit conics ----
+  (function () {
+    const svg = document.getElementById("chart-conics");
+    const W = 720, H = 420, cx = 430, cy = 210, s = 5.2, r0 = 16;
+    const cols = [
+      { k: 0.75, cls: "s-bad", lbl: "k = 0.75 (would hit the planet)" },
+      { k: 1.0, cls: "s-good", lbl: "k = 1.0 circle" },
+      { k: 1.25, cls: "s-acc", lbl: "k = 1.25 ellipse" },
+      { k: 1.5, cls: "s-force", lbl: "k = 1.5 escapes (hyperbola)" },
+    ];
+    el("circle", { cx, cy, r: 8 * s, class: "f-mut", "fill-opacity": ".35" }, svg);
+    el("text", { x: cx - 20, y: cy + 4, class: "mut" }, svg, "planet");
+    const clip = el("clipPath", { id: "cc" }, el("defs", {}, svg));
+    el("rect", { x: 0, y: 0, width: W, height: H }, clip);
+    cols.forEach(c => {
+      const k2 = c.k * c.k, e = Math.abs(k2 - 1), p = r0 * k2;
+      // launch point on +x; for k<1 it's apoapsis so periapsis direction is -x
+      const peri = c.k >= 1 ? 0 : Math.PI;
+      let d = "", pen = false;
+      for (let i = 0; i <= 720; i++) {
+        const th = -Math.PI + i * (2 * Math.PI / 720);
+        const den = 1 + e * Math.cos(th);
+        if (den < 0.06) { pen = false; continue; }
+        const r = p / den;
+        if (r > 80) { pen = false; continue; }
+        const ang = th + peri;
+        const x = cx + r * Math.cos(ang) * s, y = cy - r * Math.sin(ang) * s;
+        d += (pen ? "L" : "M") + x.toFixed(1) + "," + y.toFixed(1);
+        pen = true;
+      }
+      el("path", { d, class: c.cls, "stroke-width": 2.5, "clip-path": "url(#cc)" }, svg);
+    });
+    el("circle", { cx: cx + r0 * s, cy, r: 6, class: "f-fg" }, svg);
+    el("text", { x: cx + r0 * s + 10, y: cy + 18, class: "mono" }, svg, "launch, 16 m");
+    el("line", { x1: cx + r0 * s, y1: cy, x2: cx + r0 * s, y2: cy - 40, class: "s-ink", "stroke-width": 2 }, svg);
+    el("text", { x: cx + r0 * s + 8, y: cy - 30, class: "mono" }, svg, "v ⟂");
+    const lg = document.getElementById("legend-conics");
+    const cmap = { "s-bad": "var(--bad)", "s-good": "var(--good)", "s-acc": "var(--accent)", "s-force": "var(--force)" };
+    cols.forEach(c => { const sp = document.createElement("span"); sp.innerHTML = `<i style="background:${cmap[c.cls]}"></i>${c.lbl}`; lg.appendChild(sp); });
+  })();
+
+  // ---- Orbit lab ----
+  (function () {
+    const cv = document.getElementById("lab-canvas"), ctx = cv.getContext("2d");
+    const kIn = document.getElementById("lab-k"), kOut = document.getElementById("lab-k-out");
+    const assistIn = document.getElementById("lab-assist"), attractIn = document.getElementById("lab-attract");
+    const R = id => document.getElementById(id);
+    const G = 8, M = 250, EPS = 1, DT = 1 / 60, DAMP = 0.03, CAP = 20, PLANET_R = 8, RUB_R = 1;
+    const CAPTURE = 20, ORBIT_MULT = 1.25, BAND = 1.3, GATE = 1.3, KRATE = 2, R0 = 16;
+    let st, running = true, raf = 0;
+
+    const pullAt = (d, mult) => G * M * mult * d / Math.pow(d * d + EPS * EPS, 1.5);
+    function reset() {
+      const k = +kIn.value, mult = attractIn.checked ? 3 : 1;
+      const vc = Math.sqrt(pullAt(R0, mult) * R0);
+      st = { x: R0, y: 0, vx: 0, vy: k * vc, t: 0, trail: [], end: null,
+             track: { on: false, closest: 0, far: 0, swept: 0, lx: 0, ly: 0 } };
+    }
+    function trackOrbit(x, y) {
+      const tr = st.track, d = Math.hypot(x, y);
+      if (d > CAPTURE * ORBIT_MULT) { tr.on = false; tr.swept = 0; return; }
+      const start = () => { tr.on = true; tr.closest = tr.far = d; tr.swept = 0; tr.lx = x; tr.ly = y; };
+      if (!tr.on) return start();
+      tr.closest = Math.min(tr.closest, d); tr.far = Math.max(tr.far, d);
+      if (tr.far > tr.closest * BAND) return start();
+      tr.swept += Math.atan2(tr.lx * y - tr.ly * x, tr.lx * x + tr.ly * y);
+      tr.lx = x; tr.ly = y;
+    }
+    function step() {
+      if (st.end) return;
+      const mult = attractIn.checked ? 3 : 1;
+      const d = Math.hypot(st.x, st.y);
+      const g = pullAt(d, mult);
+      let ax = -st.x / d * g, ay = -st.y / d * g;
+      if (assistIn.checked && d < CAPTURE) {
+        const vc = Math.sqrt(g * d), sp = Math.hypot(st.vx, st.vy);
+        if (sp <= vc * GATE) {
+          const ox = st.x / d, oy = st.y / d;
+          const way = (ox * st.vy - oy * st.vx) < 0 ? -1 : 1;   // z-up cross in 2D
+          const tx = -oy * way * vc, ty = ox * way * vc;          // UP × outward
+          ax += (tx - st.vx) * KRATE + tx * DAMP;
+          ay += (ty - st.vy) * KRATE + ty * DAMP;
+        }
+      }
+      // semi-implicit Euler: velocity, damping, cap, then position
+      st.vx += ax * DT; st.vy += ay * DT;
+      const f = 1 - DAMP * DT; st.vx *= f; st.vy *= f;
+      const sp = Math.hypot(st.vx, st.vy);
+      if (sp > CAP) { st.vx *= CAP / sp; st.vy *= CAP / sp; }
+      st.x += st.vx * DT; st.y += st.vy * DT; st.t += DT;
+      trackOrbit(st.x, st.y);
+      st.trail.push([st.x, st.y]); if (st.trail.length > 1800) st.trail.shift();
+      const nd = Math.hypot(st.x, st.y);
+      if (nd <= PLANET_R + RUB_R) st.end = "hit";
+      else if (nd > 48) st.end = "escaped";
+    }
+    function css(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+    function draw() {
+      const w = cv.width, h = cv.height, sc = w / 100, cx = w / 2, cy = h / 2;
+      const c = { bg: css("--bg"), fg: css("--fg"), mut: css("--muted"), rule: css("--rule"), acc: css("--accent"), force: css("--force"), good: css("--good"), bad: css("--bad") };
+      ctx.fillStyle = c.bg; ctx.fillRect(0, 0, w, h);
+      const ring = (r, col, dash) => { ctx.beginPath(); ctx.setLineDash(dash || []); ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.arc(cx, cy, r * sc, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); };
+      ring(CAPTURE * ORBIT_MULT, c.bad, [6, 6]);
+      ring(CAPTURE, c.mut, [4, 6]);
+      ctx.beginPath(); ctx.fillStyle = c.mut; ctx.globalAlpha = .35; ctx.arc(cx, cy, PLANET_R * sc, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+      ctx.strokeStyle = c.fg; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.font = "13px " + css("--mono"); ctx.fillStyle = c.mut;
+      ctx.fillText("20 m", cx + CAPTURE * sc * .72, cy - CAPTURE * sc * .72);
+      ctx.fillText("25 m", cx + 25 * sc * .72 + 6, cy - 25 * sc * .72 - 4);
+      // trail
+      ctx.beginPath(); ctx.strokeStyle = c.acc; ctx.lineWidth = 2; ctx.globalAlpha = .7;
+      st.trail.forEach((p, i) => { const X = cx + p[0] * sc, Y = cy - p[1] * sc; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
+      ctx.stroke(); ctx.globalAlpha = 1;
+      // body + velocity
+      const X = cx + st.x * sc, Y = cy - st.y * sc;
+      ctx.beginPath(); ctx.strokeStyle = c.force; ctx.lineWidth = 2.5; ctx.moveTo(X, Y); ctx.lineTo(X + st.vx * sc * .6, Y - st.vy * sc * .6); ctx.stroke();
+      ctx.beginPath(); ctx.fillStyle = c.acc; ctx.arc(X, Y, Math.max(RUB_R * sc, 5), 0, Math.PI * 2); ctx.fill();
+    }
+    function readout() {
+      const d = Math.hypot(st.x, st.y), mult = attractIn.checked ? 3 : 1;
+      R("r-t").textContent = st.t.toFixed(1) + " s";
+      R("r-d").textContent = d.toFixed(1) + " m";
+      R("r-v").textContent = Math.hypot(st.vx, st.vy).toFixed(1) + " m/s";
+      R("r-vc").textContent = Math.sqrt(pullAt(d, mult) * d).toFixed(1) + " m/s";
+      R("r-sw").textContent = Math.round(Math.abs(st.track.swept) * 180 / Math.PI) + "°";
+      const chip = R("r-state");
+      chip.className = "chip";
+      if (st.end === "hit") { chip.textContent = "hit the planet"; chip.classList.add("badc"); }
+      else if (st.end === "escaped") { chip.textContent = "escaped"; chip.classList.add("badc"); }
+      else if (st.track.on && Math.abs(st.track.swept) >= Math.PI * 2) { chip.textContent = "in Orbit"; chip.classList.add("on"); }
+      else if (st.track.on) chip.textContent = "tracking, not yet Orbit";
+      else chip.textContent = "outside 25 m";
+    }
+    function frame() {
+      if (running) { step(); step(); }
+      draw(); readout();
+      raf = requestAnimationFrame(frame);
+    }
+    kIn.addEventListener("input", () => { kOut.textContent = (+kIn.value).toFixed(2) + "×"; });
+    document.querySelectorAll(".presets button").forEach(b => b.addEventListener("click", () => {
+      kIn.value = b.dataset.k; kOut.textContent = (+kIn.value).toFixed(2) + "×"; reset(); running = true; R("lab-pause").textContent = "Pause";
+    }));
+    R("lab-launch").addEventListener("click", () => { reset(); running = true; R("lab-pause").textContent = "Pause"; });
+    R("lab-pause").addEventListener("click", e => { running = !running; e.target.textContent = running ? "Pause" : "Resume"; });
+    reset();
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { running = false; R("lab-pause").textContent = "Resume"; }
+    frame();
+  })();
+})();
+</script>
+
+</body>
+</html>

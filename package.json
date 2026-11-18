@@ -1,0 +1,11 @@
+{
+  "name": "brendonroberto.com",
+  "private": true,
+  "description": "Static personal site. Vite is used only to preview it locally; the site deploys as-is with no build step.",
+  "scripts": {
+    "dev": "vite --open"
+  },
+  "devDependencies": {
+    "vite": "^8.3.8"
+  }
+}

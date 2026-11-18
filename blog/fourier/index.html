@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learning the Fourier Transform · Brendon Roberto</title>
+<meta name="description" content="Two small interactive pieces from learning the Fourier transform: a sine-wave mixer with a live DFT, and how the FFT splits and recombines.">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
+<link rel="stylesheet" href="/css/normalize.css">
+<link rel="stylesheet" href="/css/post.css">
+<style>
+.lab { --wave:#534AB7; --bar:#1D9E75; --barStroke:#0F6E56; --line:#d3d1c7; --btn:#EEEDFE; --btnFg:#3C3489; --btnBd:#AFA9EC;
+	background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 1.25em; margin: 2em 0; }
+.lab svg { display: block; width: 100%; height: auto; }
+.lab svg text { fill: var(--muted); font-size: 12px; font-family: "Open Sans", sans-serif; }
+.lab .row { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--muted); margin: 6px 0; }
+.lab .row span:first-child { width: 80px; }
+.lab .row input { flex: 1; min-width: 0; accent-color: var(--wave); }
+.lab .row output { width: 36px; text-align: right; font-variant-numeric: tabular-nums; }
+.lab .btns { display: flex; gap: 10px; margin: 14px 0 6px; }
+.lab button { font: inherit; font-size: 14px; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--btnBd); background: var(--btn); color: var(--btnFg); cursor: pointer; }
+.lab button.ghost { background: transparent; color: var(--muted); border-color: var(--line); }
+.fft { --box:#F1EFE8; --boxBd:#888780; --pf:#EEEDFE; --ps:#534AB7; --pt:#3C3489; --tf:#E1F5EE; --ts:#0F6E56; --tt:#085041; --arr:#888780; }
+.fft svg text { font-size: 14px; }
+.fft .h { font-weight: 600; }
+.fft .s { font-size: 12px; }
+</style>
+</head>
+<body>
+<header class="post-masthead">
+	<nav><a href="/">Brendon Roberto</a> / <a href="/blog/">Blog</a></nav>
+	<h1>Learning the Fourier transform</h1>
+	<p class="byline"><time datetime="2026-11-14">November 14, 2026</time></p>
+</header>
+
+<main class="post">
+	<p class="lede">Two small interactive pieces I built while working through how the Fourier transform works: a mixer that lets you build a signal out of sine waves and watch the transform pull them back apart, and a diagram of the trick that makes the Fast Fourier Transform fast.</p>
+
+	<h2>Any signal is a stack of sine waves</h2>
+	<p>The core idea: a repeating signal can be written as a sum of sine waves at different frequencies, each with its own strength. The Fourier transform goes the other way. You give it the signal, and it tells you how much of each frequency is in there.</p>
+	<p>Try it below. Each slider sets how strong one sine wave is, from 1 cycle across the window up to 8. The top plot is what you get when you add them all together. The bars underneath come from running a real discrete Fourier transform on that combined signal, and they land exactly on the amounts you set.</p>
+
+	<figure class="lab" aria-label="Fourier sine mixer">
+		<svg viewBox="0 0 380 270" role="img" aria-label="Signal waveform and its frequency spectrum">
+			<text x="20" y="14">Signal over time</text>
+			<line x1="20" y1="70" x2="360" y2="70" stroke="var(--line)" stroke-width="0.5"/>
+			<polyline id="w" fill="none" stroke="var(--wave)" stroke-width="1.5"/>
+			<text x="20" y="146">Fourier transform: amount of each frequency</text>
+			<g id="bars"></g>
+			<line x1="20" y1="240" x2="360" y2="240" stroke="var(--line)" stroke-width="0.5"/>
+			<g id="lbl"></g>
+		</svg>
+		<div class="btns"><button id="rand" type="button">Randomize</button><button id="reset" type="button" class="ghost">Reset</button></div>
+		<div id="sliders"></div>
+	</figure>
+
+	<h2>How the transform finds each frequency</h2>
+	<p>The discrete Fourier transform (DFT) takes <code>N</code> samples <code>x₀ … x₍N−1₎</code> and, for each frequency <code>k</code>, measures how well the signal lines up with a wave that completes <code>k</code> cycles across the window:</p>
+	<div class="formula">X_k = Σ  x_n · e^(−2πi·k·n/N)        for n = 0 … N−1</div>
+	<p>The complex exponential packs a cosine and a sine together, so each <code>X_k</code> is a correlation: multiply the signal by a test wave point by point and add it all up. Sine waves at different whole-number frequencies cancel out over a full window, so only the matching frequency survives. For a pure sine of strength <code>a</code> at frequency <code>k</code>, <code>|X_k|</code> comes out to <code>a·N/2</code>, which is why the mixer draws each bar at <code>2·|X_k| / N</code> and gets your slider value back.</p>
+
+	<h2>Why the FFT is fast</h2>
+	<p>Computed directly, every one of the <code>N</code> outputs needs a sum over all <code>N</code> inputs, which is <code>N²</code> work. The Fast Fourier Transform (in its classic Cooley–Tukey form) notices that the even-numbered and odd-numbered samples each form a half-size DFT of their own. Transform each half, then combine them:</p>
+
+	<figure class="fft">
+		<svg viewBox="0 0 680 384" role="img" aria-label="Eight inputs split into evens and odds, each transformed by a size-4 DFT, then combined with butterflies into eight outputs">
+			<defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="var(--arr)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+			<rect x="190" y="20" width="300" height="44" rx="8" fill="var(--box)" stroke="var(--boxBd)" stroke-width="0.5"/>
+			<text class="h" x="340" y="42" text-anchor="middle" dominant-baseline="central" fill="#1f1e1d">Input x0 … x7</text>
+			<rect x="60" y="110" width="260" height="56" rx="8" fill="var(--pf)" stroke="var(--ps)" stroke-width="0.5"/>
+			<text class="h" x="190" y="128" text-anchor="middle" dominant-baseline="central" fill="var(--pt)">Evens: x0 x2 x4 x6</text>
+			<text class="s" x="190" y="148" text-anchor="middle" dominant-baseline="central" fill="var(--ps)">Size-4 DFT → E_k (recurse)</text>
+			<rect x="360" y="110" width="260" height="56" rx="8" fill="var(--tf)" stroke="var(--ts)" stroke-width="0.5"/>
+			<text class="h" x="490" y="128" text-anchor="middle" dominant-baseline="central" fill="var(--tt)">Odds: x1 x3 x5 x7</text>
+			<text class="s" x="490" y="148" text-anchor="middle" dominant-baseline="central" fill="var(--ts)">Size-4 DFT → O_k (recurse)</text>
+			<rect x="120" y="220" width="440" height="56" rx="8" fill="var(--box)" stroke="var(--boxBd)" stroke-width="0.5"/>
+			<text class="h" x="340" y="238" text-anchor="middle" dominant-baseline="central" fill="#1f1e1d">Combine with butterflies (O(N) work)</text>
+			<text class="s" x="340" y="258" text-anchor="middle" dominant-baseline="central" fill="#6b6a65">X_k = E_k + ωᵏO_k     X_k+4 = E_k − ωᵏO_k</text>
+			<rect x="190" y="320" width="300" height="44" rx="8" fill="var(--box)" stroke="var(--boxBd)" stroke-width="0.5"/>
+			<text class="h" x="340" y="342" text-anchor="middle" dominant-baseline="central" fill="#1f1e1d">Output X0 … X7</text>
+			<g stroke="var(--arr)" stroke-width="1.5" marker-end="url(#a)">
+				<line x1="290" y1="64" x2="210" y2="108"/><line x1="390" y1="64" x2="470" y2="108"/>
+				<line x1="190" y1="166" x2="250" y2="218"/><line x1="490" y1="166" x2="430" y2="218"/>
+				<line x1="340" y1="276" x2="340" y2="318"/>
+			</g>
+		</svg>
+		<figcaption>One level of the FFT for N = 8. The two halves are themselves split the same way, all the way down.</figcaption>
+	</figure>
+
+	<p>The combining step is the "butterfly". With <code>ω = e^(−2πi/N)</code>, each pair of half-size results produces two outputs:</p>
+	<div class="formula">X_k       = E_k + ωᵏ · O_k
+X_(k+N/2) = E_k − ωᵏ · O_k</div>
+	<p>One multiplication by <code>ωᵏ</code> is shared by both outputs, so each level of combining costs <code>O(N)</code>. Halving repeatedly gives <code>log₂ N</code> levels, so the whole transform is <code>O(N log N)</code>. For 1,024 samples that's about 10,000 steps instead of about a million, a hundredfold speedup that grows with <code>N</code>.</p>
+</main>
+
+<p class="post-footer"><a href="/blog/">← More posts</a></p>
+
+<script>
+(function () {
+	const NS = 'http://www.w3.org/2000/svg', N = 128, K = 8, init = [1, 0, 0.5, 0, 0.3, 0, 0, 0];
+	const box = document.getElementById('sliders'), S = [], O = [];
+	for (let k = 1; k <= K; k++) {
+		const l = document.createElement('label'); l.className = 'row';
+		l.innerHTML = '<span>' + k + (k === 1 ? ' cycle' : ' cycles') + '</span><input type="range" min="0" max="100"><output></output>';
+		box.appendChild(l);
+		const s = l.querySelector('input'); s.value = Math.round(init[k - 1] * 100); s.addEventListener('input', draw);
+		S.push(s); O.push(l.querySelector('output'));
+	}
+	const bars = document.getElementById('bars'), lbl = document.getElementById('lbl'), R = [];
+	for (let k = 1; k <= K; k++) {
+		const x = 20 + (k - 1) * 42 + 8;
+		const r = document.createElementNS(NS, 'rect');
+		r.setAttribute('x', x); r.setAttribute('width', 26); r.setAttribute('rx', 3);
+		r.setAttribute('fill', 'var(--bar)'); r.setAttribute('stroke', 'var(--barStroke)'); r.setAttribute('stroke-width', '0.5');
+		bars.appendChild(r); R.push(r);
+		const t = document.createElementNS(NS, 'text');
+		t.setAttribute('x', x + 13); t.setAttribute('y', 258); t.setAttribute('text-anchor', 'middle'); t.textContent = k;
+		lbl.appendChild(t);
+	}
+	function draw() {
+		const a = S.map(s => +s.value / 100);
+		O.forEach((o, i) => o.textContent = a[i].toFixed(2));
+		const sig = [];
+		for (let n = 0; n < N; n++) { let v = 0; for (let k = 1; k <= K; k++) v += a[k - 1] * Math.sin(2 * Math.PI * k * n / N); sig.push(v); }
+		const peak = Math.max(1, ...sig.map(Math.abs)), sc = 44 / peak;
+		document.getElementById('w').setAttribute('points', sig.map((v, n) => (20 + 340 * n / (N - 1)).toFixed(1) + ',' + (70 - v * sc).toFixed(1)).join(' '));
+		R.forEach((r, i) => {
+			const k = i + 1; let re = 0, im = 0;
+			for (let n = 0; n < N; n++) { re += sig[n] * Math.cos(2 * Math.PI * k * n / N); im -= sig[n] * Math.sin(2 * Math.PI * k * n / N); }
+			const m = 2 * Math.hypot(re, im) / N, h = Math.max(m * 75, 0.5);
+			r.setAttribute('y', 240 - h); r.setAttribute('height', h);
+		});
+	}
+	document.getElementById('rand').addEventListener('click', () => { S.forEach(s => s.value = Math.round(Math.random() * 100)); draw(); });
+	document.getElementById('reset').addEventListener('click', () => { S.forEach((s, i) => s.value = Math.round(init[i] * 100)); draw(); });
+	draw();
+})();
+</script>
+</body>
+</html>
