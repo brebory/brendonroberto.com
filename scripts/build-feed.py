@@ -27,7 +27,7 @@ def write(path, text):
 
 index = read("blog/index.html")
 entries = re.findall(
-    r'<dt><a href="(/blog/[^"]+/)">(.*?)</a></dt>\s*<dd><time datetime="([\d-]+)">.*?</time>\.\s*(.*?)</dd>',
+    r'<dt><a href="(/blog/[^"]+/)">(.*?)</a></dt>\s*(?:<dd class="thumb">.*?</dd>\s*)?<dd><time datetime="([\d-]+)">.*?</time>\.\s*(.*?)</dd>',
     index,
     flags=re.S,
 )

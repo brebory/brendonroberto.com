@@ -10,8 +10,10 @@ For each page without an og:title tag it:
 - inserts Open Graph and Twitter tags, a canonical URL and the RSS link after
   the page's <title> (or its meta description, if it has one)
 
-Pages that already have tags are left alone. To change a share image, edit or
-replace its file in img/og/. Needs Pillow (pip install pillow).
+It also makes each post's blog list thumbnail, img/thumbs/<slug>.webp, from its
+share image if the thumbnail is missing. Pages that already have tags are
+otherwise left alone. To change a share image, replace its file in img/og/ and
+delete the matching thumbnail so it's remade. Needs Pillow (pip install pillow).
 """
 import glob
 import html
@@ -65,13 +67,26 @@ def card(title, dst):
     im.save(dst, quality=88)
 
 
+def make_thumb(page):
+    """Make the blog list thumbnail (img/thumbs/<slug>.webp) from a post's share image."""
+    if page.count("/") != 2:
+        return
+    slug = page.split("/")[1]
+    src, dst = f"img/og/{slug}.jpg", f"img/thumbs/{slug}.webp"
+    if os.path.exists(src) and not os.path.exists(dst):
+        Image.open(src).convert("RGB").resize((480, 252), Image.LANCZOS).save(dst, "WEBP", quality=80)
+        print(f"{page} -> {dst}")
+
+
 os.chdir(ROOT)
 os.makedirs("img/og", exist_ok=True)
+os.makedirs("img/thumbs", exist_ok=True)
 for page in ["index.html", "blog/index.html"] + sorted(glob.glob("blog/*/index.html")):
     page = page.replace(os.sep, "/")
     with open(page, encoding="utf-8", newline="") as f:
         s = f.read()
     if "og:title" in s:
+        make_thumb(page)
         continue
     title = html.unescape(re.search(r"<title>(.*?)</title>", s).group(1)).strip()
     clean = title.replace(" · Brendon Roberto", "")
@@ -111,3 +126,4 @@ for page in ["index.html", "blog/index.html"] + sorted(glob.glob("blog/*/index.h
     with open(page, "w", encoding="utf-8", newline="") as f:
         f.write(s)
     print(f"{page} -> {dst}")
+    make_thumb(page)

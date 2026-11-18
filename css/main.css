@@ -247,3 +247,78 @@ a:visited {
 
 	margin-top: 1em;
 }
+
+.questions.post-list {
+
+	/* Layout Rules */
+
+	max-width: 46em;
+}
+
+.post-list .entry {
+
+	/* Layout Rules */
+
+	display: grid;
+	grid-template-columns: 13em 1fr;
+	grid-template-rows: auto 1fr;
+	column-gap: 1.25em;
+	align-items: start;
+	margin: 2.25em 0;
+}
+
+.post-list .entry dt {
+
+	/* Layout Rules */
+
+	grid-column: 2;
+	margin: 0 0 0.4em 0;
+}
+
+.post-list .entry dd {
+
+	/* Layout Rules */
+
+	grid-column: 2;
+}
+
+.post-list .entry dd + dd {
+
+	/* Layout Rules */
+
+	margin-top: 0;
+}
+
+.post-list .entry dd.thumb {
+
+	/* Layout Rules */
+
+	grid-column: 1;
+	grid-row: 1 / span 2;
+	margin: 0.2em 0 0 0;
+}
+
+.post-list .thumb img {
+
+	/* Layout Rules */
+
+	display: block;
+	width: 100%;
+	height: auto;
+
+	/* Appearance Rules */
+
+	border-radius: 6px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 34em) {
+
+	.post-list .entry {
+
+		/* Layout Rules */
+
+		grid-template-columns: 7.5em 1fr;
+		column-gap: 0.9em;
+	}
+}
