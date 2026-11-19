@@ -322,3 +322,21 @@ a:visited {
 		column-gap: 0.9em;
 	}
 }
+
+.header-tagline {
+
+	/* Layout Rules */
+
+	max-width: 32em;
+	margin: 0 auto;
+	padding: 0 1em 0.5em 1em;
+
+	/* Typography Rules */
+
+	color: #FFFFFF;
+	font-family: "Open Sans", "Helvetica Neue", sans-serif;
+	font-size: 1.15em;
+	font-weight: 600;
+	text-align: center;
+	text-shadow: 0 1px 3px rgba(0, 30, 90, 0.6);
+}
