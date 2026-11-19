@@ -14,6 +14,9 @@ It also makes each post's blog list thumbnail, img/thumbs/<slug>.webp, from its
 share image if the thumbnail is missing. Pages that already have tags are
 otherwise left alone. To change a share image, replace its file in img/og/ and
 delete the matching thumbnail so it's remade. Needs Pillow (pip install pillow).
+
+Pages are edited in LF and written back with their own line endings, so files
+checked out with CRLF (core.autocrlf) work too.
 """
 import glob
 import html
@@ -26,6 +29,7 @@ SITE = "https://brendonroberto.com"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FONTS = os.path.join(os.environ.get("WINDIR", "C:/Windows"), "Fonts")
 W, H = 1200, 630
+LF, CRLF = "\n", "\r\n"
 
 
 def font(name, size):
@@ -78,36 +82,54 @@ def make_thumb(page):
         print(f"{page} -> {dst}")
 
 
+def page_info(page):
+    """Return (slug, canonical URL, og:type) for a page path like blog/<slug>/index.html."""
+    if page == "index.html":
+        return "home", f"{SITE}/", "website"
+    if page == "blog/index.html":
+        return "blog", f"{SITE}/blog/", "website"
+    return page.split("/")[1], f"{SITE}/{os.path.dirname(page)}/", "article"
+
+
+def first_image(page, s):
+    m = re.search(r'<main.*?(?:<img[^>]*?\bsrc="([^"]+)"|poster="([^"]+)")', s, flags=re.S)
+    if not m:
+        return None
+    u = m.group(1) or m.group(2)
+    src = u.lstrip("/") if u.startswith("/") else os.path.join(os.path.dirname(page), u)
+    return src if os.path.exists(src) and not src.endswith(".gif") else None
+
+
 os.chdir(ROOT)
 os.makedirs("img/og", exist_ok=True)
 os.makedirs("img/thumbs", exist_ok=True)
 for page in ["index.html", "blog/index.html"] + sorted(glob.glob("blog/*/index.html")):
     page = page.replace(os.sep, "/")
     with open(page, encoding="utf-8", newline="") as f:
-        s = f.read()
+        raw = f.read()
+    eol = CRLF if CRLF in raw else LF
+    s = raw.replace(CRLF, LF)
     if "og:title" in s:
         make_thumb(page)
         continue
-    title = html.unescape(re.search(r"<title>(.*?)</title>", s).group(1)).strip()
-    clean = title.replace(" · Brendon Roberto", "")
-    dm = re.search(r'<meta name="description" content="(.*?)">', s)
+    tm = re.search(r"([ \t]*)<title>(.*?)</title>\n", s)
+    if not tm:
+        print(f"SKIPPED {page}: no <title> on a line of its own")
+        continue
+    clean = html.unescape(tm.group(2)).strip().replace(" · Brendon Roberto", "")
+    dm = re.search(r'<meta name="description" content="(.*?)">\n', s)
     desc = html.unescape(dm.group(1)) if dm else clean
-    slug = page.split("/")[1] if page.count("/") == 2 else "blog"
-    url = f"{SITE}/{os.path.dirname(page)}/"
+    slug, url, kind = page_info(page)
     dst = f"img/og/{slug}.jpg"
     if not os.path.exists(dst):
-        m = re.search(r'<main.*?(?:<img[^>]*?\bsrc="([^"]+)"|poster="([^"]+)")', s, flags=re.S)
-        src = None
-        if m:
-            u = m.group(1) or m.group(2)
-            src = u.lstrip("/") if u.startswith("/") else os.path.join(os.path.dirname(page), u)
-        if src and os.path.exists(src) and not src.endswith(".gif"):
+        src = first_image(page, s)
+        if src:
             cover(src, dst)
         else:
             card(clean, dst)
     tags = [] if dm else [f'<meta name="description" content="{html.escape(desc)}">']
     tags += [
-        '<meta property="og:type" content="article">',
+        f'<meta property="og:type" content="{kind}">',
         '<meta property="og:site_name" content="Brendon Roberto">',
         f'<meta property="og:title" content="{html.escape(clean)}">',
         f'<meta property="og:description" content="{html.escape(desc)}">',
@@ -119,11 +141,9 @@ for page in ["index.html", "blog/index.html"] + sorted(glob.glob("blog/*/index.h
         f'<link rel="canonical" href="{url}">',
         '<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">',
     ]
-    tm = re.search(r"([ \t]*)<title>.*?</title>\n", s)
-    anchor = dm.group(0) + "\n" if dm else tm.group(0)
-    i = s.index(anchor) + len(anchor)
-    s = s[:i] + "".join(tm.group(1) + t + "\n" for t in tags) + s[i:]
+    anchor_end = (dm or tm).end()
+    s = s[:anchor_end] + "".join(tm.group(1) + t + LF for t in tags) + s[anchor_end:]
     with open(page, "w", encoding="utf-8", newline="") as f:
-        f.write(s)
+        f.write(s.replace(LF, eol))
     print(f"{page} -> {dst}")
     make_thumb(page)

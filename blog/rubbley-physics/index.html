@@ -912,16 +912,20 @@ for i in body_positions.size():
       else if (nd > 48) st.end = "escaped";
     }
     function css(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+    // Theme colors are read once, and again only when the theme changes.
+    let c = null;
+    function readColors() {
+      c = { bg: css("--bg"), fg: css("--fg"), mut: css("--muted"), rule: css("--rule"), acc: css("--accent"), force: css("--force"), good: css("--good"), bad: css("--bad"), mono: css("--mono") };
+    }
     function draw() {
       const w = cv.width, h = cv.height, sc = w / 100, cx = w / 2, cy = h / 2;
-      const c = { bg: css("--bg"), fg: css("--fg"), mut: css("--muted"), rule: css("--rule"), acc: css("--accent"), force: css("--force"), good: css("--good"), bad: css("--bad") };
       ctx.fillStyle = c.bg; ctx.fillRect(0, 0, w, h);
       const ring = (r, col, dash) => { ctx.beginPath(); ctx.setLineDash(dash || []); ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.arc(cx, cy, r * sc, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); };
       ring(CAPTURE * ORBIT_MULT, c.bad, [6, 6]);
       ring(CAPTURE, c.mut, [4, 6]);
       ctx.beginPath(); ctx.fillStyle = c.mut; ctx.globalAlpha = .35; ctx.arc(cx, cy, PLANET_R * sc, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
       ctx.strokeStyle = c.fg; ctx.lineWidth = 1.5; ctx.stroke();
-      ctx.font = "13px " + css("--mono"); ctx.fillStyle = c.mut;
+      ctx.font = "13px " + c.mono; ctx.fillStyle = c.mut;
       ctx.fillText("20 m", cx + CAPTURE * sc * .72, cy - CAPTURE * sc * .72);
       ctx.fillText("25 m", cx + 25 * sc * .72 + 6, cy - 25 * sc * .72 - 4);
       // trail
@@ -948,20 +952,47 @@ for i in body_positions.size():
       else if (st.track.on) chip.textContent = "tracking, not yet Orbit";
       else chip.textContent = "outside 25 m";
     }
-    function frame() {
-      if (running) { step(); step(); }
-      draw(); readout();
-      raf = requestAnimationFrame(frame);
+    // Simulated seconds per real second. Physics advances in fixed DT steps
+    // from elapsed time, so speed doesn't depend on the display's refresh rate.
+    const SPEED = 2, MAX_STEPS = 30;
+    let acc = 0, last = 0, visible = true;
+    const active = () => running && !st.end && visible && !document.hidden;
+    function render() { draw(); readout(); }
+    function frame(now) {
+      raf = 0;
+      if (last) acc += Math.min((now - last) / 1000, 0.25) * SPEED;
+      last = now;
+      let n = 0;
+      while (acc >= DT && n < MAX_STEPS && !st.end) { step(); acc -= DT; n++; }
+      if (n === MAX_STEPS) acc = 0;
+      render();
+      if (active()) raf = requestAnimationFrame(frame);
     }
+    // Start the loop if it should be running; otherwise just redraw once.
+    function wake() {
+      if (active()) { if (!raf) { last = 0; acc = 0; raf = requestAnimationFrame(frame); } }
+      else render();
+    }
+    function play() { running = true; R("lab-pause").textContent = "Pause"; wake(); }
     kIn.addEventListener("input", () => { kOut.textContent = (+kIn.value).toFixed(2) + "×"; });
     document.querySelectorAll(".presets button").forEach(b => b.addEventListener("click", () => {
-      kIn.value = b.dataset.k; kOut.textContent = (+kIn.value).toFixed(2) + "×"; reset(); running = true; R("lab-pause").textContent = "Pause";
+      kIn.value = b.dataset.k; kOut.textContent = (+kIn.value).toFixed(2) + "×"; reset(); play();
     }));
-    R("lab-launch").addEventListener("click", () => { reset(); running = true; R("lab-pause").textContent = "Pause"; });
-    R("lab-pause").addEventListener("click", e => { running = !running; e.target.textContent = running ? "Pause" : "Resume"; });
+    R("lab-launch").addEventListener("click", () => { reset(); play(); });
+    R("lab-pause").addEventListener("click", e => { running = !running; e.target.textContent = running ? "Pause" : "Resume"; wake(); });
+    assistIn.addEventListener("change", wake);
+    attractIn.addEventListener("change", wake);
+    document.addEventListener("visibilitychange", wake);
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(entries => { visible = entries[0].isIntersecting; wake(); }).observe(cv);
+    }
+    const refreshColors = () => { readColors(); if (!raf) render(); };
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", refreshColors);
+    new MutationObserver(refreshColors).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    readColors();
     reset();
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { running = false; R("lab-pause").textContent = "Resume"; }
-    frame();
+    wake();
   })();
 })();
 </script>
