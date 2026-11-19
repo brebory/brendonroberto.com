@@ -45,6 +45,8 @@ a:visited {
 	padding: 2em 0;
 
 	/* Appearance Rules */
+	/* Zigzag 3D pattern generated with MagicPattern's CSS Background Patterns
+	   (https://www.magicpattern.design/tools/css-backgrounds). */
     background: linear-gradient(135deg, #1e81fa55 25%, transparent 25%) -10px 0/ 20px 20px, linear-gradient(225deg, #1e81fa 25%, transparent 25%) -10px 0/ 20px 20px, linear-gradient(315deg, #1e81fa55 25%, transparent 25%) 0px 0/ 20px 20px, linear-gradient(45deg, #1e81fa 25%, #0054ff 25%) 0px 0/ 20px 20px;
 	
 	border-top: solid 1em #0054ff;
@@ -155,7 +157,8 @@ a:visited {
 	padding: 4em 0;
 
 	/* Appearance Rules */
-	
+	/* Grid pattern generated with MagicPattern's CSS Background Patterns
+	   (https://www.magicpattern.design/tools/css-backgrounds). */
 	background-image: linear-gradient(#111 1px, transparent 1px), linear-gradient(to right, #111 1px, #202020 1px);
     background-size: 10px 10px;
 }
