@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drafting Dungeons · Brendon Roberto</title>
+<meta name="description" content="Designing Fiber's endgame: dungeon keys, a party that drafts rooms card by card, and Stephen Cassidy's door UI where the draft happens as you go.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Brendon Roberto">
+<meta property="og:title" content="Drafting Dungeons">
+<meta property="og:description" content="Designing Fiber&#x27;s endgame: dungeon keys, a party that drafts rooms card by card, and Stephen Cassidy&#x27;s door UI where the draft happens as you go.">
+<meta property="og:url" content="https://brendonroberto.com/blog/fiber-dungeon-drafting/">
+<meta property="og:image" content="https://brendonroberto.com/img/og/fiber-dungeon-drafting.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://brendonroberto.com/blog/fiber-dungeon-drafting/">
+<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
+<link rel="stylesheet" href="/css/normalize.css">
+<link rel="stylesheet" href="/css/post.css">
+</head>
+<body>
+<header class="post-masthead">
+	<nav><a href="/">Brendon Roberto</a> / <a href="/blog/">Blog</a></nav>
+	<h1>Drafting dungeons</h1>
+	<p class="byline"><time datetime="2026-04-18">April 18, 2026</time></p>
+</header>
+
+<main class="post">
+	<p class="lede">Every action RPG needs something to do once you’ve seen the world. Fiber’s answer is <b>dungeon drafting</b>: the party builds the dungeon together, a room at a time, before and while they run it. This month it went from a spec to a first playable UI.</p>
+
+	<h2>Keys</h2>
+	<p>A dungeon starts with a <b>key</b>. Keys drop in the world and from bosses, and you can craft them with the same operations as gear: reroll, upgrade, corrupt. A key has three parts:</p>
+	<ul>
+		<li><b>Type</b> picks the biome, which sets the pool of rooms, encounters and hazards.</li>
+		<li><b>Grade</b>, Common to Legendary, raises difficulty and rewards.</li>
+		<li><b>Affixes</b> bend the whole run, like “enemies deal 20% more damage” or “chests drop an extra item.”</li>
+	</ul>
+	<p>Because keys are crafted, preparing for a run starts before anyone walks in. You’re shaping what kind of dungeon you’ll get.</p>
+
+	<h2>The first spec: draft, then run</h2>
+	<p>My first pass, written as a milestone spec, made the draft a phase before the run. Everyone gathers at the door, and players take turns in a fixed order. On your turn you see a hand of three or four room cards from the biome’s pool, pick one, and can spend a modifier from a shared pool on it, like double elites, a hidden treasure branch or a fraying floor. The key’s grade sets how many rounds there are. The last room is always the boss. Then the whole map is revealed and you go in.</p>
+	<p>Same key, different party, different dungeon. Preparation is crafting the key, strategy is the draft, and execution is the run. Clearing a dungeon can even drop a weaker copy of the key, so good runs can keep feeding themselves.</p>
+
+	<h2>Stephen’s version: the draft is the run</h2>
+	<p>Then Stephen Cassidy took the spec and pushed it somewhere better. In his brainstorm, the draft isn’t a lobby before the dungeon; <b>the draft is the dungeon</b>. You open a gate, and at each doorway the party picks the next room from three cards as you go. You only see where you’ve been, where you are and what’s next.</p>
+	<p>That opens up ideas a pre-planned map can’t have:</p>
+	<ul>
+		<li><b>Push your luck.</b> The deeper you go, the better the rewards and the more likely a boss shows up, and you still have to make it back out. Knowing when to turn around is part of the game.</li>
+		<li><b>A hidden encounter.</b> Every run has a secret: a dangerous monster, a new friend to invite back to your guild town, a special artifact. You don’t know which. Rooms leave clues, like claw marks, scorched stone or dropped supplies, and you work it out by comparing them across rooms rather than filling a bar.</li>
+		<li><b>Your build matters to the draft.</b> Class abilities and gear can change which rooms show up or how they play.</li>
+	</ul>
+	<figure>
+		<a href="img/door-sketch.webp"><img src="img/door-sketch.webp" width="1243" height="1400" loading="lazy" alt="Stephen's sketch of the door UI: a closed double door on top; below, the opened door with Character Skills on the left door, three Kitchen room cards in the doorway, Items on the right door, and a Previous Room Choices Map underneath"></a>
+		<figcaption>Stephen’s sketch: the door closed, then opened with room cards in the doorway</figcaption>
+	</figure>
+
+	<h2>The door UI</h2>
+	<p>Stephen built the first version of his <b>door UI</b>. When a gate opens, the screen splits into four parts:</p>
+	<ul>
+		<li><b>The doorway</b>, in the middle, holds the three room cards.</li>
+		<li><b>The back of the left door</b> holds your loadout, including a room only your class can draft.</li>
+		<li><b>The back of the right door</b> holds encounter intel, where the clues you’ve found get pieced together.</li>
+		<li><b>The pathway</b> along the bottom is for party talk: quick calls like danger, loot, wait, push and stop, and a vote to stop going deeper.</li>
+	</ul>
+	<p>He also wrote room cards for all five biomes and gave each door a “personality” that shapes which cards it tends to offer. The arch and background change with the biome, and the party draws behind the cards as silhouettes.</p>
+	<figure>
+		<a href="img/door-ui.webp"><img src="img/door-ui.webp" width="1152" height="648" loading="lazy" alt="The first door UI: Loadout panel on the left, three room cards labeled Combat, Treasure and Event in the middle under Depth 3, Encounter Intel on the right, and a row of party call buttons with a Vote Stop button along the bottom"></a>
+		<figcaption>The first door UI, with placeholder card art</figcaption>
+	</figure>
+	<p>The card art is placeholder and the dungeon behind the door doesn’t exist yet, but the shape is clear. Next is turning drafted rooms into real rooms and syncing the draft across a party.</p>
+</main>
+
+<p class="post-footer"><a href="/blog/">← More posts</a></p>
+<script src="/js/lightbox.js"></script>
+</body>
+</html>

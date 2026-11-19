@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiber's first month · Brendon Roberto</title>
+<meta name="description" content="The first month of Fiber: a Godot starter project, Kenney placeholder art, a player state machine, one-way platforms, tests in CI and maps that connect.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Brendon Roberto">
+<meta property="og:title" content="Fiber&#x27;s first month">
+<meta property="og:description" content="The first month of Fiber: a Godot starter project, Kenney placeholder art, a player state machine, one-way platforms, tests in CI and maps that connect.">
+<meta property="og:url" content="https://brendonroberto.com/blog/fiber-first-steps/">
+<meta property="og:image" content="https://brendonroberto.com/img/og/fiber-first-steps.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://brendonroberto.com/blog/fiber-first-steps/">
+<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
+<link rel="stylesheet" href="/css/normalize.css">
+<link rel="stylesheet" href="/css/post.css">
+</head>
+<body>
+<header class="post-masthead">
+	<nav><a href="/">Brendon Roberto</a> / <a href="/blog/">Blog</a></nav>
+	<h1>Fiber’s first month</h1>
+	<p class="byline"><time datetime="2025-11-18">November 18, 2025</time></p>
+</header>
+
+<main class="post">
+	<p class="lede">A month ago, my friend Stephen Cassidy and I started a game under the name Snackpack Games. It’s called <strong>Fiber</strong>, and right now it looks nothing like what we have in mind. That’s on purpose.</p>
+
+	<h2>The pitch, from the README</h2>
+	<p>The first commit landed on October 16. The README pitched a 2D platformer for squads of four, with paper and collage art. You’d craft gear and skills from materials you find, open gates with keys you crafted, and work through dungeons room by room, with a random encounter in each room. Towns would act as guild hubs, and the folk you rescue could move in and offer buffs and recipes. Power would come from crafting more than from leveling: less grinding for experience, more grinding for materials.</p>
+	<p>None of that exists yet. What exists is a character who can run and jump.</p>
+
+	<h2>Start from something that runs</h2>
+	<p>The project literally started as <a href="https://godotengine.org/">Godot</a>’s official 2D tutorial, “Dodge the Creeps”, and the README admitted it still had a lot of tutorial files lying around. That was a fine place to begin: a working main scene, a player, enemies on a timer and a score. From there we swapped the top-down dodger for a side-on platformer, and Stephen pulled in <a href="https://kenney.nl/">Kenney</a>’s free platformer art as placeholder and organized it. Kenney’s packs are the reason prototypes like this can look friendly on day one.</p>
+	<figure>
+		<video controls muted playsinline preload="metadata" poster="video/creeps-start.jpg" src="video/creeps-start.mp4"></video>
+		<figcaption>Early November: still titled “Dodge the Creeps”, now on Kenney tiles</figcaption>
+	</figure>
+
+	<h2>A player built from states</h2>
+	<p>The player runs on a finite state machine: idle, running, jumping, falling, and a <b>drop</b> state for one-way platforms. Hold down on a platform and you drop through it, which turns a flat test map into something you can actually move around in. Each state owns its own input and physics, so adding a new move means adding a state instead of growing one giant <code>_physics_process</code>.</p>
+	<p>The first round of tuning was all feel: gravity, run speed and jump impulse, a collision shape that lines up with the sprite, and a sprite that flips when you change direction. Enemies that drift offscreen for five seconds despawn, so the test map doesn’t fill up with stragglers.</p>
+	<figure>
+		<video controls muted playsinline preload="metadata" poster="video/coins-and-flyers.jpg" src="video/coins-and-flyers.mp4"></video>
+		<figcaption>Coins, one-way platforms and a lot of flying placeholder enemies</figcaption>
+	</figure>
+
+	<h2>Tests from week two</h2>
+	<p>I added <a href="https://github.com/bitwes/Gut">GUT</a>, the Godot unit testing tool, in the second week, and GitHub Actions runs the suite on every pull request with JUnit reports right in the PR. It feels early for a game that’s mostly a pink blob and some coins, but the habit is much easier to start now than to retrofit later, and everything after this gets built on top of it.</p>
+
+	<h2>Maps that connect</h2>
+	<p>The rest of the month was about having more than one place to be. Stephen built the town and the atlas, and I wired up the warps and started the inventory:</p>
+	<ul>
+		<li>A first <b>town map</b> with a parallax background, so the sky scrolls behind the play space.</li>
+		<li>An <b>atlas</b>: a data model for which maps exist and how their edges and warps connect.</li>
+		<li><b>Warp events</b>, so walking into a warp moves you to the matching spot on another map.</li>
+		<li>The start of an <b>inventory</b>: things you touch get picked up, and a dialog lists what you’re carrying.</li>
+	</ul>
+	<p>Next up is giving the character something to be good at: stats, actions that cost stamina, and a reason to pick things up.</p>
+</main>
+
+<p class="post-footer"><a href="/blog/">← More posts</a></p>
+<script src="/js/lightbox.js"></script>
+</body>
+</html>

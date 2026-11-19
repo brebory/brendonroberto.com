@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stats and Affixes · Brendon Roberto</title>
+<meta name="description" content="How Fiber's RPG stats, item affixes and crafting fit together: five base stats, layered modifiers, graded affixes, crafted slots and an equipment screen to see it all.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Brendon Roberto">
+<meta property="og:title" content="Stats and Affixes">
+<meta property="og:description" content="How Fiber&#x27;s RPG stats, item affixes and crafting fit together: five base stats, layered modifiers, graded affixes, crafted slots and an equipment screen to see it all.">
+<meta property="og:url" content="https://brendonroberto.com/blog/fiber-stats-and-affixes/">
+<meta property="og:image" content="https://brendonroberto.com/img/og/fiber-stats-and-affixes.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://brendonroberto.com/blog/fiber-stats-and-affixes/">
+<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
+<link rel="stylesheet" href="/css/normalize.css">
+<link rel="stylesheet" href="/css/post.css">
+<style>
+/* Layout Rules */
+.post table { width: 100%; margin: 1em 0 1.5em; border-collapse: collapse; }
+.post th, .post td { padding: 0.4em 0.6em; text-align: left; vertical-align: top; }
+.post pre { margin: 1em 0 1.5em; padding: 1em; overflow-x: auto; }
+
+/* Typography Rules */
+.post table { font-size: 0.95em; }
+.post th { font-weight: 700; }
+.post pre { font-size: 0.9em; line-height: 1.5; }
+
+/* Appearance Rules */
+.post th, .post td { border-bottom: 1px solid var(--rule); }
+.post pre { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; }
+</style>
+</head>
+<body>
+<header class="post-masthead">
+	<nav><a href="/">Brendon Roberto</a> / <a href="/blog/">Blog</a></nav>
+	<h1>Stats and affixes</h1>
+	<p class="byline"><time datetime="2026-03-16">March 16, 2026</time></p>
+</header>
+
+<main class="post">
+	<p class="lede">Fiber’s whole pitch is that your power comes from what you craft and wear, not from grinding levels. That only works if the stats underneath are solid. Over the last month I built the stat system, item affixes, crafting, and an equipment screen to see it all.</p>
+
+	<h2>Five stats, three pools</h2>
+	<p>Every entity, player or enemy, has five base stats. They all start at 5.</p>
+	<div class="tablewrap"><table>
+		<thead><tr><th>Stat</th><th>What it feeds</th></tr></thead>
+		<tbody>
+			<tr><td>Strength</td><td>Max HP, physical damage, physical damage reduction</td></tr>
+			<tr><td>Dexterity</td><td>Max SP, crit chance, dodge</td></tr>
+			<tr><td>Intelligence</td><td>Max MP, spell damage, crit damage</td></tr>
+			<tr><td>Wisdom</td><td>SP regen, elemental resistance</td></tr>
+			<tr><td>Luck</td><td>Drop rate, crit chance, crit damage</td></tr>
+		</tbody>
+	</table></div>
+	<p>Those feed three resource pools. <b>HP</b> and <b>MP</b> only come back from items, rest and abilities. <b>SP</b>, stamina, refills on its own at a rate set by Wisdom, and it’s what your moves spend. Jumping and the basic attack both cost stamina, through a small <b>action</b> system that any entity can use.</p>
+	<p>Every derived stat is a formula in one file, so balancing means editing one place. Max HP is <code>50 + STR × 10</code>, crit chance is <code>DEX × 0.5 + LCK × 1</code> capped at 100%, and so on.</p>
+	<figure>
+		<video controls muted playsinline preload="metadata" poster="video/stats-and-actions.jpg" src="video/stats-and-actions.mp4"></video>
+		<figcaption>The first HP, SP and MP bars, with stamina going into jumps and attacks</figcaption>
+	</figure>
+
+	<h2>Modifiers that don’t care about order</h2>
+	<p>Gear and buffs change stats through <b>modifiers</b>, each with an additive and a multiplicative part. They’re grouped by where they came from, so equipping a sword adds one group and unequipping removes it in one call. The math is deliberately boring:</p>
+<pre>effective = (base + all additives) × (1 + all multipliers)
+
+STR 10, sword +3, blessing +15%:
+(10 + 3) × 1.15 = 14.95</pre>
+	<p>Because everything is summed before it’s multiplied, the order you equip things in never changes the result. That rules out a whole class of bugs, and it means the stat screen can just ask for a number.</p>
+
+	<h2>Items: what it dropped with, and what you add</h2>
+	<p>Every item has two kinds of affixes.</p>
+	<p><b>Intrinsic affixes</b> are rolled when the item drops and stay with it forever:</p>
+	<ul>
+		<li><b>Base stats</b>, rolled within a range set by the item type.</li>
+		<li>A <b>unique affix</b> that every copy of that item type has. Every pair of Noble’s Boots has Intelligence, for example.</li>
+		<li>One <b>random affix</b> from the pool, optionally narrowed by tags on the item type.</li>
+	</ul>
+	<p><b>Crafted affixes</b> go into slots that you control. An item starts with two slots and can be expanded to four with Weaver’s Thread. Anything you put in a slot can be swapped out later.</p>
+	<p>Every affix has a <b>grade</b>: Common, Uncommon, Rare, Epic or Legendary. Each grade’s value range starts at or above the previous grade’s ceiling, so upgrading an affix re-rolls it into a range that’s always better. Drops lean toward lower grades, and every intrinsic affix rolls its grade on its own, so one item can mix a Rare base stat with a Common random affix.</p>
+	<figure>
+		<video controls muted playsinline preload="metadata" poster="video/item-card.jpg" src="video/item-card.mp4"></video>
+		<figcaption>Item cards: grade-colored affixes, crafted slots and a stat comparison</figcaption>
+	</figure>
+
+	<h2>Crafting with thread</h2>
+	<p>Materials are all fiber: Barbed Thread for offensive affixes, Ember Silk for fire, Weaver’s Thread for slot expansion, and Raw Fiber for base stats. Each material comes in all five grades. Crafting or upgrading an affix costs one material per tag on the affix, at the grade you’re aiming for, so a Rare offensive fire affix costs a Rare Barbed Thread and a Rare Ember Silk. Mapping a tag to a material is content, not code, so adding a new material doesn’t need a programmer.</p>
+	<p>The crafting system has eight operations, including crafting, upgrading, rerolling, slotting, extracting and salvaging. <b>Corruption</b> is the gamble: it can reroll an item or grant it a boon, but a corrupted item can’t be crafted on again. Its random rolls are injected, so the tests can check every outcome deterministically.</p>
+	<p>The last piece this month was <b>unbinding</b>. You can pull a crafted affix out of an item for free and keep it in your inventory to slot somewhere else. Removing things used to be destructive, and making it free is meant to encourage experimenting.</p>
+	<p>Not every affix is a number. <b>Effect affixes</b> trigger on hit, on kill, on crit, when you take damage, when a resource crosses a threshold, or are always on. A registry hooks each one up to the combat and stat events when you equip the item and unhooks it when you take it off. Move speed and jump height are regular stats, so movement affixes get the same math as everything else.</p>
+
+	<h2>Seeing it all</h2>
+	<p>None of this is fun if you can’t see it. The inventory now has an equipment column, a stat summary that updates live as you equip, and an item card that pops up on hover. When you hover an item, its card compares against what you have equipped and highlights each stat that would go up in green or down in red. To have something to test with, a random drop spawner on the test map throws one of everything at you.</p>
+	<figure>
+		<video controls muted playsinline preload="metadata" poster="video/equipment-stats.jpg" src="video/equipment-stats.mp4"></video>
+		<figcaption>Equipping drops and watching the stat summary change</figcaption>
+	</figure>
+	<p>Next: the enemies. They can fight back now, but hits don’t feel like much yet.</p>
+</main>
+
+<p class="post-footer"><a href="/blog/">← More posts</a></p>
+<script src="/js/lightbox.js"></script>
+</body>
+</html>

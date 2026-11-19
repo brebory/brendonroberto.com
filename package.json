@@ -1,0 +1,14 @@
+{
+  "name": "brendonroberto.com",
+  "private": true,
+  "description": "Static personal site. Vite is used only to preview it locally; the site deploys as-is with no build step.",
+  "scripts": {
+    "dev": "vite --open",
+    "feed": "python scripts/build-feed.py",
+    "share-tags": "python scripts/share-tags.py",
+    "check": "python scripts/check-links.py"
+  },
+  "devDependencies": {
+    "vite": "^8.3.8"
+  }
+}

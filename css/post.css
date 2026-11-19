@@ -1,0 +1,173 @@
+/* Shared styles for blog posts. Matches the homepage: Open Sans body,
+   Gentium headings, the blue accent and the patterned masthead. */
+
+:root {
+	--fg: #222222;
+	--muted: #5a5a5a;
+	--accent: #1E81FA;
+	--accent-deep: #0054FF;
+	--rule: #dde3ec;
+	--panel: #f4f7fb;
+	--bg: #ffffff;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	background: var(--bg);
+	color: var(--fg);
+	font-family: "Open Sans", "Helvetica Neue", sans-serif;
+	font-size: 1.0625em;
+	line-height: 1.65;
+}
+
+::selection {
+	background: #C2F1FF;
+}
+
+a {
+	color: var(--accent);
+	font-weight: bold;
+	text-decoration: none;
+}
+
+a:hover {
+	color: var(--accent-deep);
+}
+
+.post-masthead {
+	padding: 2.5em 16px 2em;
+	background: linear-gradient(135deg, #1e81fa55 25%, transparent 25%) -10px 0/ 20px 20px, linear-gradient(225deg, #1e81fa 25%, transparent 25%) -10px 0/ 20px 20px, linear-gradient(315deg, #1e81fa55 25%, transparent 25%) 0px 0/ 20px 20px, linear-gradient(45deg, #1e81fa 25%, #0054ff 25%) 0px 0/ 20px 20px;
+	border-top: solid 1em #0054ff;
+	border-bottom: solid 1em #0054ff;
+	text-align: center;
+	color: #ffffff;
+}
+
+.post-masthead nav {
+	font-size: 0.95em;
+	margin-bottom: 1em;
+}
+
+.post-masthead nav a {
+	color: #C2F1FF;
+}
+
+.post-masthead h1 {
+	margin: 0 auto;
+	max-width: 22em;
+	font-family: "Gentium Book Basic", Georgia, serif;
+	font-size: clamp(2em, 6vw, 3em);
+	line-height: 1.1;
+	text-shadow: 0px 3px 0px #0054ff;
+}
+
+.post-masthead .byline {
+	margin: 0.75em 0 0;
+	color: #C2F1FF;
+	font-size: 0.95em;
+}
+
+.post {
+	max-width: 42em;
+	margin: 0 auto;
+	padding: 2.5em 16px 5em;
+}
+
+.post h2 {
+	margin: 2.2em 0 0.5em;
+	color: var(--accent-deep);
+	font-family: "Gentium Book Basic", Georgia, serif;
+	font-size: 1.6em;
+	line-height: 1.2;
+}
+
+.post h3 {
+	margin: 1.6em 0 0.4em;
+	font-size: 1.1em;
+}
+
+.post p,
+.post ul {
+	margin: 0 0 1em;
+}
+
+.post .lede {
+	font-size: 1.15em;
+	color: var(--muted);
+}
+
+.post figure {
+	margin: 2em 0;
+}
+
+.post figure img,
+.post figure video {
+	display: block;
+	width: 100%;
+	height: auto;
+	border-radius: 6px;
+}
+
+.post figcaption {
+	margin-top: 0.6em;
+	color: var(--muted);
+	font-family: "Gentium Book Basic", Georgia, serif;
+	font-style: italic;
+	text-align: center;
+}
+
+/* Two or three images side by side; stacks on phones. */
+.post .pair {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(14em, 1fr));
+	gap: 1em;
+	align-items: start;
+}
+
+.post .pair figure {
+	margin: 0;
+}
+
+/* Pixel art: scale up without smoothing. */
+.post img.pixel {
+	image-rendering: pixelated;
+	background: var(--panel);
+	padding: 1em;
+}
+
+.post .panel {
+	background: var(--panel);
+	border: 1px solid var(--rule);
+	border-radius: 8px;
+	padding: 1.25em 1.5em;
+	margin: 1.5em 0;
+}
+
+.post code {
+	font-family: ui-monospace, Consolas, monospace;
+	font-size: 0.9em;
+	background: var(--panel);
+	padding: 1px 5px;
+	border-radius: 4px;
+}
+
+.post .formula {
+	font-family: ui-monospace, Consolas, monospace;
+	background: var(--panel);
+	border-left: 3px solid var(--accent);
+	padding: 0.9em 1.1em;
+	margin: 1.25em 0;
+	overflow-x: auto;
+	white-space: pre;
+}
+
+.post-footer {
+	max-width: 42em;
+	margin: 0 auto;
+	padding: 0 16px 4em;
+	color: var(--muted);
+}

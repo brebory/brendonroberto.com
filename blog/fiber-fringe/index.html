@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Living Fringe · Brendon Roberto</title>
+<meta name="description" content="Fiber's Fringe: grass, moss and ivy that sway in the wind, bend away from whoever walks through them, and sort in front of or behind them. Designed by Stephen Cassidy.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Brendon Roberto">
+<meta property="og:title" content="Living Fringe">
+<meta property="og:description" content="Fiber&#x27;s Fringe: grass, moss and ivy that sway in the wind, bend away from whoever walks through them, and sort in front of or behind them. Designed by Stephen Cassidy.">
+<meta property="og:url" content="https://brendonroberto.com/blog/fiber-fringe/">
+<meta property="og:image" content="https://brendonroberto.com/img/og/fiber-fringe.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://brendonroberto.com/blog/fiber-fringe/">
+<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
+<link rel="stylesheet" href="/css/normalize.css">
+<link rel="stylesheet" href="/css/post.css">
+<style>
+/* Layout Rules */
+.post pre { margin: 1em 0 1.5em; padding: 1em; overflow-x: auto; }
+
+/* Typography Rules */
+.post pre { font-size: 0.9em; line-height: 1.5; }
+
+/* Appearance Rules */
+.post pre { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; }
+</style>
+</head>
+<body>
+<header class="post-masthead">
+	<nav><a href="/">Brendon Roberto</a> / <a href="/blog/">Blog</a></nav>
+	<h1>Living fringe</h1>
+	<p class="byline"><time datetime="2026-11-12">November 12, 2026</time></p>
+</header>
+
+<main class="post">
+	<p class="lede">Fiber’s world is made of cloth, so the scenery should move like cloth. <b>Fringe</b> is the grass, hanging moss and ivy you walk past. Each strand sways in the wind, bends away from whoever brushes through it, and tucks in front of or behind them. It shipped this week.</p>
+	<figure>
+		<video controls muted playsinline preload="metadata" poster="video/fringe-test-bed.jpg" src="video/fringe-test-bed.mp4"></video>
+		<figcaption>A test bed: a row of grass, a ledge of moss and ivy, and a stand-in block walking through both</figcaption>
+	</figure>
+
+	<h2>Designed first</h2>
+	<p>Fringe was Stephen Cassidy’s design. He ran it as a wayfinder map, made a prototype of the wind and push pose, and wrote down the two decisions everything else hangs on as architecture decision records.</p>
+
+	<h3>Push is part of the wind, not on top of it</h3>
+	<p>Fiber already had cloth math for wind: strips and branches that bend by an angle each frame and never stretch. The obvious way to add a push from a passing player is to shove the strand sideways after the wind pose, which would stretch exactly the chains that were built not to stretch. Instead, push is another <b>angle</b> in the same formula, pointing away from whoever is nearby. When both apply, push takes over from wind rather than adding to it:</p>
+<pre>strength = smoothstep falloff by distance to the nearest body
+angle    = lerp(wind_angle, push_angle, strength)</pre>
+	<p>A direct shove always reads clearly instead of fighting whatever way the wind is blowing. Only the <b>nearest</b> body counts. Summing pushes from several bodies was rejected because two people on opposite sides would cancel out, and the grass would go limp instead of looking squeezed. There’s no momentum either: the pose is worked out fresh every frame, so when you leave, the strand relaxes straight back to swaying. A springy overshoot can be layered on later without changing any of this.</p>
+
+	<h3>No baking</h3>
+	<p>Fiber’s other procedural scenery, its rocks, trees and buildings, is generated and then baked into sprite sheets in the editor, so it costs nothing at runtime. Fringe can’t be baked, because it reacts to wherever you are right now. So it skips the baking step entirely: its shape is cheap enough to generate when the level loads, and it redraws every frame. That makes performance a real question, so strands that are off screen with nobody nearby stop processing. Placing a dense field of them is the intended use.</p>
+
+	<h2>Built, then polished</h2>
+	<p>With the map and decisions settled, the implementation went through our <a href="/blog/fiber-agents/">agent pipeline</a>: a data model for species with grass, moss and ivy presets, the live-drawn node, push detection, depth sorting, and gating by visibility and distance, plus a manual demo scene to check it all by eye.</p>
+	<p>Reviewing it, I tightened a few things. The push now measures from the edge of the body instead of its center, so a big mob bends grass when its side brushes it, not only when its middle gets close. The gating got stricter, I fixed the draw order, and I picked the art. Then I planted the first patch of grass in the test map.</p>
+	<p>Placing it is meant to be dull: drop a Fringe node at the point where the blade grows or the strand hangs, pick a species, and you’re done. The node sets up its own detection and visibility checks, and the editor previews it live in a gentle wind.</p>
+</main>
+
+<p class="post-footer"><a href="/blog/">← More posts</a></p>
+<script src="/js/lightbox.js"></script>
+</body>
+</html>

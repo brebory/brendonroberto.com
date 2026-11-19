@@ -1,49 +1,111 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Brendon Roberto :: Design &amp; Development</title>
-    <link href='//cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/css/foundation.min.css' rel='stylesheet'>
-  </head>
-  <body>
-    <nav class='top-bar'>
-      <ul class='title-area'>
-        <li class='name'>
-          <h1>
-            <a href='#'>BR</a>
-          </h1>
-        </li>
-        <li class='toggle-topbar menu-icon'>
-          <a href='#'>
-            <span>Menu</span>
-          </a>
-        </li>
-      </ul>
-      <section class='top-bar-section'>
-        <ul class='right'>
-          <li class='divider'></li>
-          <li>
-            <a href='#'>about</a>
-          </li>
-          <li class='divider'></li>
-          <li>
-            <a href='#'>contact</a>
-          </li>
-        </ul>
-      </section>
-    </nav>
-    <header class='heading'>
-      <h1 class='lead'>
-        I build things on the web.
-        <small class='sub'>And sometimes, they're kinda cool.</small>
-      </h1>
-    </header>
-    <section class='panel'>
-      <article class='story'>
-        <header class='article-heading'>
-          <h1>Craft.</h1>
-        </header>
-        <p>That's craft, not cruft. And craft is a good thing, because things that people care about make people happier. And work better. And are just plain cool.</p>
-      </article>
-    </section>
-  </body>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Blog · Brendon Roberto</title>
+		<meta name="description" content="Game development deep dives, Fiber dev logs, art and experiments by Brendon Roberto.">
+		<meta property="og:type" content="website">
+		<meta property="og:site_name" content="Brendon Roberto">
+		<meta property="og:title" content="Blog">
+		<meta property="og:description" content="Game development deep dives, Fiber dev logs, art and experiments by Brendon Roberto.">
+		<meta property="og:url" content="https://brendonroberto.com/blog/">
+		<meta property="og:image" content="https://brendonroberto.com/img/og/blog.jpg">
+		<meta property="og:image:width" content="1200">
+		<meta property="og:image:height" content="630">
+		<meta name="twitter:card" content="summary_large_image">
+		<link rel="canonical" href="https://brendonroberto.com/blog/">
+		<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="/css/normalize.css">
+		<link href='https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" href="/css/main.css">
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	</head>
+	<body>
+		<header class="masthead">
+			<h2 class="header-copy"><a href="/" style="color: inherit;">Brendon Roberto</a></h2>
+			<h1 class="header-name">Blog</h1>
+		</header>
+		<section class="content-posts">
+			<dl class="questions post-list">
+				<div class="entry">
+					<dt><a href="/blog/sketchbook/">Sketchbook</a></dt>
+					<dd class="thumb"><a href="/blog/sketchbook/" tabindex="-1" aria-hidden="true"><img src="/img/thumbs/sketchbook.webp" width="480" height="252" loading="lazy" alt=""></a></dd>
+					<dd><time datetime="2026-11-18">November 18, 2026</time>. Hypnos from first sketch to 3D, early Rubbley concept art, characters, paintings, figure studies, pixel art and older traditional work.</dd>
+				</div>
+				<div class="entry">
+					<dt><a href="/blog/fourier/">Learning the Fourier transform</a></dt>
+					<dd class="thumb"><a href="/blog/fourier/" tabindex="-1" aria-hidden="true"><img src="/img/thumbs/fourier.webp" width="480" height="252" loading="lazy" alt=""></a></dd>
+					<dd><time datetime="2026-11-14">November 14, 2026</time>. A sine-wave mixer with a live Fourier transform, and how the FFT splits and recombines to get fast.</dd>
+				</div>
+				<div class="entry">
+					<dt><a href="/blog/fiber-fringe/">Living fringe</a></dt>
+					<dd class="thumb"><a href="/blog/fiber-fringe/" tabindex="-1" aria-hidden="true"><img src="/img/thumbs/fiber-fringe.webp" width="480" height="252" loading="lazy" alt=""></a></dd>
+					<dd><time datetime="2026-11-12">November 12, 2026</time>. Grass, moss and ivy that sway in the wind and bend away from whoever walks through them: Stephen Cassidy&rsquo;s design, and how it shipped.</dd>
+				</div>
+				<div class="entry">
+					<dt><a href="/blog/fiber/">Fiber</a></dt>
+					<dd class="thumb"><a href="/blog/fiber/" tabindex="-1" aria-hidden="true"><img src="/img/thumbs/fiber.webp" width="480" height="252" loading="lazy" alt=""></a></dd>
+					<dd><time datetime="2026-11-08">November 8, 2026</time>. A four-player co-op platformer where the whole world is sewn from thread: the world, the Fiberkin and the systems underneath.</dd>
+				</div>
+				<div class="entry">
+					<dt><a href="/blog/rubbley-physics/">How Rubbley&rsquo;s gravity works</a></dt>
+					<dd class="thumb"><a href="/blog/rubbley-physics/" tabindex="-1" aria-hidden="true"><img src="/img/thumbs/rubbley-physics.webp" width="480" height="252" loading="lazy" alt=""></a></dd>
+					<dd><time datetime="2026-11-06">November 6, 2026</time>. The Newtonian physics behind Rubbley, the small game tweaks layered on top, and the GDScript that implements them, with diagrams and an orbit simulator you can play with.</dd>
+				</div>
+				<div class="entry">
+					<dt><a href="/blog/fiber-ui/">Sewing Fiber&rsquo;s UI</a></dt>
+					<dd class="thumb"><a href="/blog/fiber-ui/" tabindex="-1" aria-hidden="true"><img src="/img/thumbs/fiber-ui.webp" width="480" height="252" loading="lazy" alt=""></a></dd>
+					<dd><time datetime="2026-10-28">October 28, 2026</time>. How Fiber&rsquo;s menus, HUD, shop and auction house became fabric patches: the prototypes, the rules they settled, and screenshots from along the way.</dd>
+				</div>
+				<div class="entry">
+					<dt><a href="/blog/fiber-sprite-pipeline/">Sketch to sprite</a></dt>
+					<dd class="thumb"><a href="/blog/fiber-sprite-pipeline/" tabindex="-1" aria-hidden="true"><img src="/img/thumbs/fiber-sprite-pipeline.webp" width="480" height="252" loading="lazy" alt=""></a></dd>
+					<dd><time datetime="2026-10-27">October 27, 2026</time>. A local image-generation pipeline for pixel-art drafts: the fight to keep characters on model, a lot of failed animation attempts, and the hand cleanup in Aseprite. Every image is labeled as generated.</dd>
+				</div>
+				<div class="entry">
+					<dt><a href="/blog/fiber-agents/">Fiber&rsquo;s software factory</a></dt>
+					<dd class="thumb"><a href="/blog/fiber-agents/" tabindex="-1" aria-hidden="true"><img src="/img/thumbs/fiber-agents.webp" width="480" height="252" loading="lazy" alt=""></a></dd>
+					<dd><time datetime="2026-10-21">October 21, 2026</time>. How a loose idea becomes a merged feature: wayfinder maps, plans merged before issues, a scheduled agent and scripted playtests.</dd>
+				</div>
+				<div class="entry">
+					<dt><a href="/blog/fiber-combat-feel/">Making hits land</a></dt>
+					<dd class="thumb"><a href="/blog/fiber-combat-feel/" tabindex="-1" aria-hidden="true"><img src="/img/thumbs/fiber-combat-feel.webp" width="480" height="252" loading="lazy" alt=""></a></dd>
+					<dd><time datetime="2026-05-13">May 13, 2026</time>. Fiber&rsquo;s data-driven enemies, and the small effects that make combat feel good: damage numbers, hit flash, screenshake, i-frames and hitstop.</dd>
+				</div>
+				<div class="entry">
+					<dt><a href="/blog/fiber-persistence/">Remembering things</a></dt>
+					<dd class="thumb"><a href="/blog/fiber-persistence/" tabindex="-1" aria-hidden="true"><img src="/img/thumbs/fiber-persistence.webp" width="480" height="252" loading="lazy" alt=""></a></dd>
+					<dd><time datetime="2026-05-07">May 7, 2026</time>. Maps that remember what you did when you warp away, and a save system that writes locally first and syncs to Nakama.</dd>
+				</div>
+				<div class="entry">
+					<dt><a href="/blog/fiber-multiplayer/">Two players, one map</a></dt>
+					<dd class="thumb"><a href="/blog/fiber-multiplayer/" tabindex="-1" aria-hidden="true"><img src="/img/thumbs/fiber-multiplayer.webp" width="480" height="252" loading="lazy" alt=""></a></dd>
+					<dd><time datetime="2026-04-23">April 23, 2026</time>. Fiber&rsquo;s first working multiplayer session: a Nakama backend, a host-authoritative game, and the bugs that showed up first.</dd>
+				</div>
+				<div class="entry">
+					<dt><a href="/blog/fiber-dungeon-drafting/">Drafting dungeons</a></dt>
+					<dd class="thumb"><a href="/blog/fiber-dungeon-drafting/" tabindex="-1" aria-hidden="true"><img src="/img/thumbs/fiber-dungeon-drafting.webp" width="480" height="252" loading="lazy" alt=""></a></dd>
+					<dd><time datetime="2026-04-18">April 18, 2026</time>. Fiber&rsquo;s endgame: crafted dungeon keys, a party that drafts rooms card by card, and Stephen Cassidy&rsquo;s door UI.</dd>
+				</div>
+				<div class="entry">
+					<dt><a href="/blog/fiber-emblems/">Skills you sew</a></dt>
+					<dd class="thumb"><a href="/blog/fiber-emblems/" tabindex="-1" aria-hidden="true"><img src="/img/thumbs/fiber-emblems.webp" width="480" height="252" loading="lazy" alt=""></a></dd>
+					<dd><time datetime="2026-04-07">April 7, 2026</time>. Emblems: skills as craftable items you weave, embroider and use as keys, and the first skill effect, Ember Slash.</dd>
+				</div>
+				<div class="entry">
+					<dt><a href="/blog/fiber-stats-and-affixes/">Stats and affixes</a></dt>
+					<dd class="thumb"><a href="/blog/fiber-stats-and-affixes/" tabindex="-1" aria-hidden="true"><img src="/img/thumbs/fiber-stats-and-affixes.webp" width="480" height="252" loading="lazy" alt=""></a></dd>
+					<dd><time datetime="2026-03-16">March 16, 2026</time>. Fiber&rsquo;s RPG stat system, graded item affixes, thread-based crafting and the equipment screen that shows it all.</dd>
+				</div>
+				<div class="entry">
+					<dt><a href="/blog/fiber-first-steps/">Fiber&rsquo;s first month</a></dt>
+					<dd class="thumb"><a href="/blog/fiber-first-steps/" tabindex="-1" aria-hidden="true"><img src="/img/thumbs/fiber-first-steps.webp" width="480" height="252" loading="lazy" alt=""></a></dd>
+					<dd><time datetime="2025-11-18">November 18, 2025</time>. Starting a co-op platformer from Godot&rsquo;s starter tutorial and Kenney placeholder art: a player state machine, one-way platforms, tests in CI and maps that connect.</dd>
+				</div>
+			</dl>
+			<p class="body-copy">Some of these posts were written up afterward from commit history, devlogs and recordings, and are dated to when the work shipped. Follow along with the <a href="/blog/feed.xml">RSS feed</a>.</p>
+		</section>
+	</body>
 </html>

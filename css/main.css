@@ -45,6 +45,8 @@ a:visited {
 	padding: 2em 0;
 
 	/* Appearance Rules */
+	/* Zigzag 3D pattern generated with MagicPattern's CSS Background Patterns
+	   (https://www.magicpattern.design/tools/css-backgrounds). */
     background: linear-gradient(135deg, #1e81fa55 25%, transparent 25%) -10px 0/ 20px 20px, linear-gradient(225deg, #1e81fa 25%, transparent 25%) -10px 0/ 20px 20px, linear-gradient(315deg, #1e81fa55 25%, transparent 25%) 0px 0/ 20px 20px, linear-gradient(45deg, #1e81fa 25%, #0054ff 25%) 0px 0/ 20px 20px;
 	
 	border-top: solid 1em #0054ff;
@@ -58,7 +60,7 @@ a:visited {
 	max-width: 38em;
 }
 
-.body-copy, .questions, .social, .heading {
+.body-copy, .questions, .social, .heading, .media {
 
 	/* Layout Rules */
 
@@ -78,6 +80,7 @@ a:visited {
 	font-family: "Gentium Book Basic", Georgia, serif;
 	font-size: 2em;
 	text-align: center;
+	text-shadow: 0 1px 3px rgba(0, 30, 90, 0.6);
 }
 
 .header-name {
@@ -97,7 +100,7 @@ a:visited {
 	letter-spacing: -0.02em;
 	text-transform: uppercase;
 	text-align: center;
-	text-shadow: 0px 3px 0px cornflowerblue;
+	text-shadow: 0px 3px 0px cornflowerblue, 0 1px 3px rgba(0, 30, 90, 0.6);
 }
 
 [class^="content"] {
@@ -122,7 +125,6 @@ a:visited {
 
 	font-weight: 400;
 	text-align: left;
-	letter-spacing: 0.05em;
 
 }
 
@@ -155,7 +157,8 @@ a:visited {
 	padding: 4em 0;
 
 	/* Appearance Rules */
-	
+	/* Grid pattern generated with MagicPattern's CSS Background Patterns
+	   (https://www.magicpattern.design/tools/css-backgrounds). */
 	background-image: linear-gradient(#111 1px, transparent 1px), linear-gradient(to right, #111 1px, #202020 1px);
     background-size: 10px 10px;
 }
@@ -186,4 +189,158 @@ a:visited {
 
 	display: inline-block;
 	margin-right: 1em;
+}
+
+.media {
+
+	/* Layout Rules */
+
+	max-width: 38em;
+	margin-top: 2em;
+	margin-bottom: 2em;
+}
+
+.media video {
+
+	/* Layout Rules */
+
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 16 / 9;
+
+	/* Appearance Rules */
+
+	background: #111111;
+	border-bottom: solid 0.5em #0054ff;
+}
+
+.media figcaption {
+
+	/* Layout Rules */
+
+	margin-top: 0.5em;
+
+	/* Typography Rules */
+
+	color: #555555;
+	font-family: "Gentium Book Basic", Georgia, serif;
+	font-style: italic;
+	text-align: center;
+}
+
+.media img {
+
+	/* Layout Rules */
+
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.media-art {
+
+	/* Layout Rules */
+
+	max-width: 20em;
+}
+
+.questions dd + dd {
+
+	/* Layout Rules */
+
+	margin-top: 1em;
+}
+
+.questions.post-list {
+
+	/* Layout Rules */
+
+	max-width: 46em;
+}
+
+.post-list .entry {
+
+	/* Layout Rules */
+
+	display: grid;
+	grid-template-columns: 13em 1fr;
+	grid-template-rows: auto 1fr;
+	column-gap: 1.25em;
+	align-items: start;
+	margin: 2.25em 0;
+}
+
+.post-list .entry dt {
+
+	/* Layout Rules */
+
+	grid-column: 2;
+	margin: 0 0 0.4em 0;
+}
+
+.post-list .entry dd {
+
+	/* Layout Rules */
+
+	grid-column: 2;
+}
+
+.post-list .entry dd + dd {
+
+	/* Layout Rules */
+
+	margin-top: 0;
+}
+
+.post-list .entry dd.thumb {
+
+	/* Layout Rules */
+
+	grid-column: 1;
+	grid-row: 1 / span 2;
+	margin: 0.2em 0 0 0;
+}
+
+.post-list .thumb img {
+
+	/* Layout Rules */
+
+	display: block;
+	width: 100%;
+	height: auto;
+
+	/* Appearance Rules */
+
+	border-radius: 6px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 34em) {
+
+	.post-list .entry {
+
+		/* Layout Rules */
+
+		grid-template-columns: 7.5em 1fr;
+		column-gap: 0.9em;
+	}
+}
+
+.header-tagline {
+
+	/* Layout Rules */
+
+	max-width: 32em;
+	margin: 0 auto;
+	padding: 0 1em 0.5em 1em;
+
+	/* Typography Rules */
+
+	color: #FFFFFF;
+	font-family: "Open Sans", "Helvetica Neue", sans-serif;
+	font-size: 1.15em;
+	font-weight: 600;
+	text-align: center;
+	text-shadow: 0 1px 3px rgba(0, 30, 90, 0.6);
 }

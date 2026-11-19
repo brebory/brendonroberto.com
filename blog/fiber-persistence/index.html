@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Remembering Things · Brendon Roberto</title>
+<meta name="description" content="How Fiber remembers: map state that survives warping away and back, and a save system that writes locally first and syncs to Nakama.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Brendon Roberto">
+<meta property="og:title" content="Remembering Things">
+<meta property="og:description" content="How Fiber remembers: map state that survives warping away and back, and a save system that writes locally first and syncs to Nakama.">
+<meta property="og:url" content="https://brendonroberto.com/blog/fiber-persistence/">
+<meta property="og:image" content="https://brendonroberto.com/img/og/fiber-persistence.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://brendonroberto.com/blog/fiber-persistence/">
+<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
+<link rel="stylesheet" href="/css/normalize.css">
+<link rel="stylesheet" href="/css/post.css">
+<style>
+/* Layout Rules */
+.post table { width: 100%; margin: 1em 0 1.5em; border-collapse: collapse; }
+.post th, .post td { padding: 0.4em 0.6em; text-align: left; vertical-align: top; }
+
+/* Typography Rules */
+.post table { font-size: 0.95em; }
+
+/* Appearance Rules */
+.post th, .post td { border-bottom: 1px solid var(--rule); }
+</style>
+</head>
+<body>
+<header class="post-masthead">
+	<nav><a href="/">Brendon Roberto</a> / <a href="/blog/">Blog</a></nav>
+	<h1>Remembering things</h1>
+	<p class="byline"><time datetime="2026-05-07">May 7, 2026</time></p>
+</header>
+
+<main class="post">
+	<p class="lede">A game starts to feel real when it remembers what you did. For the last month I’ve been working on two kinds of memory in Fiber: short-term memory for the maps you walk through, and long-term memory for your character.</p>
+
+	<h2>Maps that remember</h2>
+	<p>Fiber’s world is made of maps joined by warps. Until April, leaving a map threw it away, so walking back in respawned every enemy fresh and brought back every pickup you’d already grabbed. Now a <b>map state manager</b> takes a snapshot when you leave and restores it when you return:</p>
+	<ul>
+		<li><b>Mobs</b> come back where you left them, with the same health and behavior state.</li>
+		<li><b>Spawners</b> keep their timers and their pool of reusable mobs.</li>
+		<li><b>Pickups</b> you already collected stay collected.</li>
+	</ul>
+	<p>It’s session-only on purpose. Each spawner has a reset timer, five minutes by default, after which the map starts fresh. Map state isn’t part of your save. The spawners don’t know the manager exists, either: the main scene asks every spawner on the old map for a snapshot and hands them back on return.</p>
+	<figure>
+		<video controls muted playsinline preload="metadata" poster="video/warp-and-return.jpg" src="video/warp-and-return.mp4"></video>
+		<figcaption>Warping away and back: the mobs are where they were</figcaption>
+	</figure>
+	<p>Multiplayer made this more interesting. The host owns map state, so when a pickup is collected or a mob dies, the host’s snapshot is the one that counts, and map warps are synced to every player by the host.</p>
+
+	<h2>Saving your character</h2>
+	<p>The save system splits data into three scopes:</p>
+	<div class="tablewrap"><table>
+		<thead><tr><th>Scope</th><th>What’s in it</th></tr></thead>
+		<tbody>
+			<tr><td>User</td><td>Settings, account-wide currency and unlocks, a shared stash</td></tr>
+			<tr><td>Character</td><td>Stats, inventory, equipment, emblems, patterns, materials and position</td></tr>
+			<tr><td>World</td><td>Quest progress, guild town progress and discoveries</td></tr>
+		</tbody>
+	</table></div>
+	<p>Saving has three tiers. What you’re playing with lives in memory. A <b>save manager</b> writes to a local cache on disk first, then syncs to <a href="https://heroiclabs.com/nakama/">Nakama</a> in the background, so a slow connection never stalls the game and you can keep playing offline. Nakama is the authority once you’re online.</p>
+	<p>The pattern that makes it manageable is the <b>saveable</b>. Each system owns its own serialization: inventory knows how to save inventory, equipment knows how to save equipment, and each one registers with the save manager when the player spawns. The save manager doesn’t know what any of the data means; it just collects it and writes it out. Items and emblems save by a stable definition ID plus their rolled values, so renaming or moving a resource file in the project doesn’t break an old save, and every save carries a version number so future changes can migrate old saves forward.</p>
+</main>
+
+<p class="post-footer"><a href="/blog/">← More posts</a></p>
+<script src="/js/lightbox.js"></script>
+</body>
+</html>

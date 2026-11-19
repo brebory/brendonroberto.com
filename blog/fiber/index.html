@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiber · Brendon Roberto</title>
+<meta name="description" content="Fiber is a four-player co-op platformer where the whole world, and everyone in it, is sewn from thread. A tour of the world, the Fiberkin and the systems that make it tick.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Brendon Roberto">
+<meta property="og:title" content="Fiber">
+<meta property="og:description" content="Fiber is a four-player co-op platformer where the whole world, and everyone in it, is sewn from thread. A tour of the world, the Fiberkin and the systems that make it tick.">
+<meta property="og:url" content="https://brendonroberto.com/blog/fiber/">
+<meta property="og:image" content="https://brendonroberto.com/img/og/fiber.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://brendonroberto.com/blog/fiber/">
+<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
+<link rel="stylesheet" href="/css/normalize.css">
+<link rel="stylesheet" href="/css/post.css">
+<style>
+/* Fiber's patchwork palette: cloth, paper and thread. */
+:root { --fg:#2b2015; --muted:#5c4a34; --accent:#7a4128; --accent-deep:#7a4128; --rule:#b9a37c; --panel:#e6dabf; --bg:#efe6d3; }
+body { font-family: "Quicksand", Verdana, sans-serif; font-weight: 500; }
+.post-masthead { background: #1c1a17; border: none; padding-bottom: 2.5em; }
+.post-masthead nav a { color: #c98a4a; }
+.post-masthead h1 { font-family: "Patrick Hand", "Comic Sans MS", cursive; font-weight: 400; font-size: clamp(3em, 12vw, 5.5em); color: #f0e6d2; text-shadow: none; transform: rotate(-3deg); }
+.post-masthead .tagline { max-width: 32em; margin: 0.6em auto 0; color: #c9bc9e; font-size: 1.15em; }
+.post-masthead .byline { color: #c9bc9e; }
+.post h2 { font-family: "Patrick Hand", "Comic Sans MS", cursive; font-weight: 400; font-size: 2.2em; color: #2b2015; transform: rotate(-1deg); }
+.post figcaption { font-family: "Patrick Hand", "Comic Sans MS", cursive; font-style: normal; font-size: 1.15em; color: var(--muted); }
+.patch { background: var(--panel); border: 2px solid var(--rule); border-radius: 14px; padding: 10px; margin: 1.25em 0; }
+.patch > div { border: 2px dashed #5c3f28; border-radius: 10px; padding: 1em 1.25em; }
+.patch h3 { margin: 0 0 0.25em; font-family: "Patrick Hand", "Comic Sans MS", cursive; font-weight: 400; font-size: 1.6em; color: var(--accent); }
+.patch p { margin: 0; }
+.patches { display: grid; grid-template-columns: repeat(auto-fit, minmax(12em, 1fr)); gap: 1em; }
+.patches .patch { margin: 0; }
+.patches.loop { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 30em) { .patches.loop { grid-template-columns: 1fr; } }
+.layers { margin: 1.5em 0; border-radius: 14px; overflow: hidden; border: 2px solid var(--rule); }
+.layers > div { padding: 1em 1.4em; }
+.layers > div + div { border-top: 2px dashed var(--rule); }
+.layers .l1 { background: var(--panel); }
+.layers .l2 { background: #7a6444; color: #f0e6d2; }
+.layers .l3 { background: #1c1a17; color: #c9bc9e; }
+.layers h3 { margin: 0 0 0.2em; font-family: "Patrick Hand", "Comic Sans MS", cursive; font-weight: 400; font-size: 1.6em; }
+.layers .l3 h3 { color: #e591b8; }
+.layers .tag { font-size: 0.8em; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.8; }
+.post img.pixel { background: #1c1a17; border-radius: 14px; }
+.cast { display: grid; grid-template-columns: repeat(auto-fit, minmax(10em, 1fr)); gap: 1em; }
+.cast figure { margin: 0; }
+.cast img { aspect-ratio: 1; object-fit: cover; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(9em, 1fr)); gap: 1em; margin: 1.5em 0; }
+.stats div { background: var(--panel); border: 2px solid var(--rule); border-radius: 14px; padding: 1em; text-align: center; }
+.stats b { display: block; font-family: "Patrick Hand", "Comic Sans MS", cursive; font-weight: 400; font-size: 2.6em; line-height: 1; color: var(--accent); }
+</style>
+</head>
+<body>
+<header class="post-masthead">
+	<nav><a href="/">Brendon Roberto</a> / <a href="/blog/">Blog</a></nav>
+	<h1>Fiber</h1>
+	<p class="tagline">A four-player co-op platformer where the whole world, and everyone in it, is sewn from thread.</p>
+	<p class="byline"><time datetime="2026-11-08">November 8, 2026</time></p>
+</header>
+
+<main class="post">
+	<h2>A world you can hold in your hands</h2>
+	<p class="lede">Fiber is a co-op platformer for up to four friends. You live in warm, handmade guild towns, and you head out room by room with your friends, gathering threads, rescuing folk and bringing it all home to craft with.</p>
+	<p>The tone I keep coming back to is Studio Ghibli: Irontown and the Valley of the Wind, warm, busy communities where everyone has a craft. It's built in <a href="https://godotengine.org/">Godot</a> 4, with an online backend on Nakama.</p>
+
+	<div class="patches">
+		<div class="patch"><div><h3>Squad up</h3><p>Four-player online co-op, built in from day one.</p></div></div>
+		<div class="patch"><div><h3>Craft, don’t grind</h3><p>Power comes from threads you weave into gear and skills, not XP bars.</p></div></div>
+		<div class="patch"><div><h3>Draft the descent</h3><p>The party builds each dungeon together, card by card, before going in.</p></div></div>
+	</div>
+
+	<h2>Everything is woven</h2>
+	<p>People, monsters, places, weather, even light. Damage is fraying and healing is re-weaving. The farther you travel, the older and more tangled the weave gets.</p>
+	<div class="layers">
+		<div class="l1"><span class="tag">Layer 1</span><h3>The Weave</h3><p>The surface. Guild towns, craft halls and the folk who keep the world stitched together.</p></div>
+		<div class="l2"><span class="tag">Layer 2</span><h3>The Between</h3><p>The wilds between the towns: mossy, overgrown and full of materials, monsters and folk who need a hand.</p></div>
+		<div class="l3"><span class="tag">Layer 3</span><h3>The Ancient Knot</h3><p>The oldest, most tangled weave in the world, far below the towns.</p></div>
+	</div>
+
+	<h2>The Fiberkin</h2>
+	<div class="pair">
+		<figure><img class="pixel" src="img/fiberkin.png" width="768" height="1024" alt="The Fiberkin pixel sprite: a patchwork hood stitched from tan and brown scraps, a stitched smile, a cloak and stubby legs"></figure>
+		<div>
+			<p>The hero is a small guild member stitched together from found scraps: a patchwork hood with visible seams, a stitched smile, and a cloak that trails behind every jump.</p>
+			<p>The sprite has to read at 64 pixels, stay charming at 128, and be simple enough for four players to tell apart by cloth color alone. All five colors come from a palette swap of the same rig, so every animation works in every color.</p>
+		</div>
+	</div>
+	<figure><img class="pixel" src="img/fiberkin-colors.png" width="1200" height="320" alt="The Fiberkin in its five cloth colors: beige, green, purple, yellow and pink"><figcaption>One rig, five cloth colors to pick from</figcaption></figure>
+
+	<h2>Four friends, one room at a time</h2>
+	<div class="patches loop">
+		<div class="patch"><div><h3>1 · Gather</h3><p>Shop, craft and pick a gate with your guild in town.</p></div></div>
+		<div class="patch"><div><h3>2 · Descend</h3><p>Each room rolls an encounter: monsters, treasure or someone in trouble.</p></div></div>
+		<div class="patch"><div><h3>3 · Harvest</h3><p>Loot materials and threads. Rescue folk for your town.</p></div></div>
+		<div class="patch"><div><h3>4 · Weave</h3><p>Turn the haul into gear, skills and keys. Go deeper.</p></div></div>
+	</div>
+	<p>The inspirations: <a href="https://maplestory.nexon.net/">MapleStory</a>’s party play, <a href="https://www.monsterhunter.com/">Monster Hunter</a>’s gather-and-craft rhythm and <a href="https://pathofexile2.com/">Path of Exile</a>’s itemization, with a metroidvania world to open up as your build grows. Grinding is for materials, not experience.</p>
+
+	<h2>Threads: pull it out, weave it in somewhere else</h2>
+	<p>Every modifier in Fiber is a thread: a twist of fiber you can unstitch from one thing and sew into another. Nothing you find is ever wasted.</p>
+	<div class="patches">
+		<div class="patch"><div><h3>Soul thread</h3><p><b>Who you are.</b> Woven into yourself for stats and innate bonuses. Wool takes a blow; silk is precise.</p></div></div>
+		<div class="patch"><div><h3>Item thread</h3><p><b>What you carry.</b> Gear affixes like “+8% Fire Resistance” or “Spells ignite on crit”.</p></div></div>
+		<div class="patch"><div><h3>Emblem thread</h3><p><b>What you can do.</b> Skill behavior: extra projectiles, a new element, an on-kill burst.</p></div></div>
+	</div>
+	<p>Threads come in five grades from Common to Legendary. Crafting can reroll, upgrade or corrupt them, and corruption is a deliberate gamble: risk for power the guilds sealed away.</p>
+
+	<h2>Skills are sewn, not learned</h2>
+	<p>Beat a boss and you earn its pattern. Weave the pattern into an <b><a href="/blog/fiber-emblems/">emblem</a></b>, then embroider it with threads to bend how the skill behaves. You can unstitch a thread back out intact, or corrupt the emblem for something stronger and stranger.</p>
+	<p>Emblems double as keys. World gates ask for a skill with the right element or movement, so your build decides where you can explore. It’s the metroidvania layer, except the keys are skills you crafted.</p>
+
+	<h2>The party builds the dungeon before it runs it</h2>
+	<p>A crafted key opens an instanced dungeon. Its type sets the biome, its grade sets the stakes, and its affixes bend the whole run. Then everyone drafts: in turn, each player picks a room card from a hand of three or four and may lay a modifier on it. The last room is always the boss.</p>
+	<p>Same key, different party, different dungeon. Preparation is the key crafting, strategy is the draft, and execution is the run. More in <a href="/blog/fiber-dungeon-drafting/">Drafting dungeons</a>.</p>
+
+	<h2>Soft materials, sharp combat</h2>
+	<ul>
+		<li><b>Hit stop</b> freezes frames on impact, scaled to how hard you hit.</li>
+		<li><b>Knockback</b> is a decaying force that sends cloth bodies tumbling.</li>
+		<li><b>Attack riders</b> fire on cast, hit, crit or kill, stacked from gear and skills.</li>
+		<li><b>Four elements</b>: Fire, Ice, Lightning and Void.</li>
+		<li><b>Crowd control</b>: Root pins you in place, Silence locks your emblems, and teammates break you free.</li>
+		<li><b><a href="/blog/fiber-fringe/">Living fringe</a></b>: grass, moss and ivy sway in the wind and bend aside as you brush past.</li>
+	</ul>
+
+	<h2>Every control is sewn down</h2>
+	<p>The interface is made of the same stuff as the world: fabric patches, paper and thread. Every panel has one dashed seam inset from its edge. Titles are hand-lettered and tilted like pinned labels. Health bars tear open when you take damage. And menus never pause the game, because your friends are still playing. I wrote up <a href="/blog/fiber-ui/">how the UI got there</a>.</p>
+
+	<h2>Folk you’ll meet on the way</h2>
+	<div class="cast">
+		<figure><img src="img/loomwright.png" width="1024" height="1024" alt="The Loomwright: a hooded, cream-robed figure with a shadowed face carrying a wooden shuttle"><figcaption>The Loomwright, a weaver you can recruit to your town</figcaption></figure>
+		<figure><img src="img/emissary.png" width="1024" height="1024" alt="An Emissary: a spotted, mushroom-capped cloaked figure"><figcaption>The Emissaries, spotted, capped and quiet</figcaption></figure>
+		<figure><img src="img/bloby.png" width="1024" height="1024" alt="Bloby: a round, smiling tan blob creature"><figcaption>Bloby, an early townsfolk draft</figcaption></figure>
+	</div>
+	<p>These are generated early drafts from my <a href="/blog/fiber-sprite-pipeline/">pixel-art pipeline</a>, which turns concept sketches into on-model sprites in the Fiberkin’s outline weight and palette. The Loomwright and Emissary sketches are by <a href="https://github.com/DanasGlimpse">Dana Cassidy</a>. Folk you rescue on runs move into your guild town and unlock buffs, recipes and skills.</p>
+
+	<h2>Where it’s at</h2>
+	<div class="stats">
+		<div><b>30+</b>game systems built and documented</div>
+		<div><b>378</b>automated test files, run on every change</div>
+		<div><b>4</b>player online co-op</div>
+	</div>
+	<p>The client is Godot 4.7 with GDScript throughout. Scripted playtests capture frames, metrics and video, the same agentic workflow I use on <a href="/blog/rubbley-physics/">Rubbley</a>. Next up: bosses, guild towns and an alpha demo.</p>
+</main>
+
+<p class="post-footer"><a href="/blog/">← More posts</a></p>
+<script src="/js/lightbox.js"></script>
+</body>
+</html>

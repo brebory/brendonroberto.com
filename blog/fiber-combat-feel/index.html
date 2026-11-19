@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Making Hits Land · Brendon Roberto</title>
+<meta name="description" content="Fiber's enemies and combat feel: data-driven mobs, melee hitboxes, floating damage numbers, hit flash, screenshake, i-frames and hitstop.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Brendon Roberto">
+<meta property="og:title" content="Making Hits Land">
+<meta property="og:description" content="Fiber&#x27;s enemies and combat feel: data-driven mobs, melee hitboxes, floating damage numbers, hit flash, screenshake, i-frames and hitstop.">
+<meta property="og:url" content="https://brendonroberto.com/blog/fiber-combat-feel/">
+<meta property="og:image" content="https://brendonroberto.com/img/og/fiber-combat-feel.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://brendonroberto.com/blog/fiber-combat-feel/">
+<link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
+<link rel="stylesheet" href="/css/normalize.css">
+<link rel="stylesheet" href="/css/post.css">
+<style>
+/* Layout Rules */
+.post pre { margin: 1em 0 1.5em; padding: 1em; overflow-x: auto; }
+
+/* Typography Rules */
+.post pre { font-size: 0.9em; line-height: 1.5; }
+
+/* Appearance Rules */
+.post pre { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; }
+</style>
+</head>
+<body>
+<header class="post-masthead">
+	<nav><a href="/">Brendon Roberto</a> / <a href="/blog/">Blog</a></nav>
+	<h1>Making hits land</h1>
+	<p class="byline"><time datetime="2026-05-13">May 13, 2026</time></p>
+</header>
+
+<main class="post">
+	<p class="lede">For a couple of months Fiber had enemies that could hit you and that you could hit back. It worked, but it didn’t feel like anything. This post covers how the enemies came together and the pile of small effects that make a hit feel like a hit.</p>
+
+	<h2>One mob scene, many mobs</h2>
+	<p>Stephen Cassidy built the mob system, and its core idea is that every enemy is the same scene. What makes a slime a slime is a <b>mob resource</b>: a data file with its sprites, stats, speed, starting behavior, patrol distance, vision and actions. A new enemy type is made entirely in the <a href="https://godotengine.org/">Godot</a> editor, with no new code. The first batch was ten of them, each with its own quirks, including some that run away the moment they spot you.</p>
+	<p>Mobs run on the same state machine as the player, with states like idle, patrol, chase and attack. They find their way around with Godot’s navigation, and they notice you two ways: a vision cone in front of them, confirmed with a line-of-sight raycast so they can’t see through walls, and a small alert radius all the way round, so you can’t stand right behind one unnoticed. Stephen also gave the slimes a squash-and-stretch bounce.</p>
+	<figure>
+		<video controls muted playsinline preload="metadata" poster="video/mob-vision.jpg" src="video/mob-vision.mp4"></video>
+		<figcaption>Debug view: each mob’s vision cone, line of sight and alert radius</figcaption>
+	</figure>
+	<figure>
+		<video controls muted playsinline preload="metadata" poster="video/mob-roster.jpg" src="video/mob-roster.mp4"></video>
+		<figcaption>A few of the mob types out on the test map</figcaption>
+	</figure>
+
+	<h2>Fighting back</h2>
+	<p>I wired the mobs into combat, which is built on <b>hitboxes</b> and <b>hurtboxes</b>. An attack spawns a hitbox for a moment, and anything with a hurtbox that it overlaps takes damage, worked out from the attacker’s stats, the attack, and the target’s resistances. Mobs chase you until you’re in range, then switch to a melee attack state that spawns their own hitbox. They have health bars, and both sides get a slash effect when they swing, tinted red for enemies. Attacks also got a separate end delay, so how long a hitbox lasts no longer decides how long the whole attack takes.</p>
+
+	<h2>The small stuff</h2>
+	<p>With fights working, we spent the last few weeks on feel. I built the damage numbers and hitstop, and Stephen built the hit reactions. None of these are big systems on their own; together, they’re the difference between a number going down and a hit.</p>
+	<p>A lot of these ideas came from <a href="https://www.youtube.com/InboundShovel">Inbound Shovel</a>’s <b>Game Dev Secrets</b> series of shorts, which is where hitstop and trauma-based screenshake first clicked for me. A crit zoom from the same series is next on my list.</p>
+
+	<h3>Damage numbers</h3>
+	<p>Every hit pops a number above the target. The number’s size and color scale with the damage, and crits get their own treatment. Each number pops up, arcs off like a fountain away from the hit, and fades. The first version moved too fast to read, so it slowed down and the arc got smoother. The numbers also draw on their own layer above everything else, so they never hide behind a mob.</p>
+
+	<h3>Getting hit</h3>
+	<p>Taking damage now does three things, all only on your own screen:</p>
+	<ul>
+		<li><b>Invulnerability frames</b> went from 0.3 seconds to 1.5, so a group of enemies can’t drain you in a blink.</li>
+		<li>A <b>hit flash</b> shader pulses your sprite between red and white for as long as you’re invulnerable, so you can see exactly how long you have.</li>
+		<li><b>Screenshake</b> works on trauma: each hit adds trauma scaled by the damage, trauma decays over time, and the shake follows a power curve of the trauma, so small hits barely nudge the camera and big ones really move it.</li>
+	</ul>
+	<p>In multiplayer, those effects only run for the player who got hit. Nobody’s camera shakes because someone else took a hit.</p>
+
+	<h3>Hitstop</h3>
+	<p>Hitstop is the biggest one. When a hit connects, the attacker and the target freeze for a split second. The freeze scales with damage:</p>
+<pre>t        = clamp(damage / 100, 0, 1)
+duration = lerp(0.05 s, 0.15 s, t)</pre>
+	<p>Freezing works by disabling processing on the attacker and the target, then putting it back afterwards. Two rules keep it from going wrong. An attack that lands several hits in the same frame only freezes the attacker once, tracked by an ID for each attack. And a new hit can lengthen a freeze that’s already running but never shorten it.</p>
+	<figure>
+		<video controls muted playsinline preload="metadata" poster="video/hitstop.jpg" src="video/hitstop.mp4"></video>
+		<figcaption>Combat right after hitstop landed</figcaption>
+	</figure>
+	<figure>
+		<video controls muted playsinline preload="metadata" poster="video/first-fights.jpg" src="video/first-fights.mp4"></video>
+		<figcaption>A fight from the day hit reactions landed</figcaption>
+	</figure>
+	<p>Two smaller changes went in alongside it. Dashing no longer makes you invulnerable, and Stephen gave item pickups and loot drops their own bit of juice. Next up is knockback.</p>
+</main>
+
+<p class="post-footer"><a href="/blog/">← More posts</a></p>
+<script src="/js/lightbox.js"></script>
+</body>
+</html>
