@@ -47,11 +47,11 @@
 	<p>Stephen Cassidy built the mob system, and its core idea is that every enemy is the same scene. What makes a slime a slime is a <b>mob resource</b>: a data file with its sprites, stats, speed, starting behavior, patrol distance, vision and actions. A new enemy type is made entirely in the <a href="https://godotengine.org/">Godot</a> editor, with no new code. The first batch was ten of them, each with its own quirks, including some that run away the moment they spot you.</p>
 	<p>Mobs run on the same state machine as the player, with states like idle, patrol, chase and attack. They find their way around with Godot’s navigation, and they notice you two ways: a vision cone in front of them, confirmed with a line-of-sight raycast so they can’t see through walls, and a small alert radius all the way round, so you can’t stand right behind one unnoticed. Stephen also gave the slimes a squash-and-stretch bounce.</p>
 	<figure>
-		<video controls muted playsinline preload="metadata" poster="video/mob-vision.jpg" src="video/mob-vision.mp4"></video>
+		<video controls muted playsinline preload="none" poster="video/mob-vision.jpg" width="960" height="540" src="video/mob-vision.mp4"></video>
 		<figcaption>Debug view: each mob’s vision cone, line of sight and alert radius</figcaption>
 	</figure>
 	<figure>
-		<video controls muted playsinline preload="metadata" poster="video/mob-roster.jpg" src="video/mob-roster.mp4"></video>
+		<video controls muted playsinline preload="none" poster="video/mob-roster.jpg" width="960" height="540" src="video/mob-roster.mp4"></video>
 		<figcaption>A few of the mob types out on the test map</figcaption>
 	</figure>
 
@@ -80,11 +80,11 @@
 duration = lerp(0.05 s, 0.15 s, t)</pre>
 	<p>Freezing works by disabling processing on the attacker and the target, then putting it back afterwards. Two rules keep it from going wrong. An attack that lands several hits in the same frame only freezes the attacker once, tracked by an ID for each attack. And a new hit can lengthen a freeze that’s already running but never shorten it.</p>
 	<figure>
-		<video controls muted playsinline preload="metadata" poster="video/hitstop.jpg" src="video/hitstop.mp4"></video>
+		<video controls muted playsinline preload="none" poster="video/hitstop.jpg" width="960" height="540" src="video/hitstop.mp4"></video>
 		<figcaption>Combat right after hitstop landed</figcaption>
 	</figure>
 	<figure>
-		<video controls muted playsinline preload="metadata" poster="video/first-fights.jpg" src="video/first-fights.mp4"></video>
+		<video controls muted playsinline preload="none" poster="video/first-fights.jpg" width="960" height="540" src="video/first-fights.mp4"></video>
 		<figcaption>A fight from the day hit reactions landed</figcaption>
 	</figure>
 	<p>Two smaller changes went in alongside it. Dashing no longer makes you invulnerable, and Stephen gave item pickups and loot drops their own bit of juice. Next up is knockback.</p>

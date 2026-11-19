@@ -40,7 +40,7 @@
 	<h2>Start from something that runs</h2>
 	<p>The project literally started as <a href="https://godotengine.org/">Godot</a>’s official 2D tutorial, “Dodge the Creeps”, and the README admitted it still had a lot of tutorial files lying around. That was a fine place to begin: a working main scene, a player, enemies on a timer and a score. From there we swapped the top-down dodger for a side-on platformer, and Stephen pulled in <a href="https://kenney.nl/">Kenney</a>’s free platformer art as placeholder and organized it. Kenney’s packs are the reason prototypes like this can look friendly on day one.</p>
 	<figure>
-		<video controls muted playsinline preload="metadata" poster="video/creeps-start.jpg" src="video/creeps-start.mp4"></video>
+		<video controls muted playsinline preload="none" poster="video/creeps-start.jpg" width="960" height="564" src="video/creeps-start.mp4"></video>
 		<figcaption>Early November: still titled “Dodge the Creeps”, now on Kenney tiles</figcaption>
 	</figure>
 
@@ -48,7 +48,7 @@
 	<p>The player runs on a finite state machine: idle, running, jumping, falling, and a <b>drop</b> state for one-way platforms. Hold down on a platform and you drop through it, which turns a flat test map into something you can actually move around in. Each state owns its own input and physics, so adding a new move means adding a state instead of growing one giant <code>_physics_process</code>.</p>
 	<p>The first round of tuning was all feel: gravity, run speed and jump impulse, a collision shape that lines up with the sprite, and a sprite that flips when you change direction. Enemies that drift offscreen for five seconds despawn, so the test map doesn’t fill up with stragglers.</p>
 	<figure>
-		<video controls muted playsinline preload="metadata" poster="video/coins-and-flyers.jpg" src="video/coins-and-flyers.mp4"></video>
+		<video controls muted playsinline preload="none" poster="video/coins-and-flyers.jpg" width="960" height="540" src="video/coins-and-flyers.mp4"></video>
 		<figcaption>Coins, one-way platforms and a lot of flying placeholder enemies</figcaption>
 	</figure>
 
