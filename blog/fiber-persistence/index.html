@@ -17,8 +17,9 @@
 <link rel="canonical" href="https://brendonroberto.com/blog/fiber-persistence/">
 <link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="preload" href="/fonts/gentium-book-basic/gentium-book-basic-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/open-sans/open-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/css/normalize.css">
 <link rel="stylesheet" href="/css/post.css">
 <style>
@@ -52,7 +53,7 @@
 	</ul>
 	<p>It’s session-only on purpose. Each spawner has a reset timer, five minutes by default, after which the map starts fresh. Map state isn’t part of your save. The spawners don’t know the manager exists, either: the main scene asks every spawner on the old map for a snapshot and hands them back on return.</p>
 	<figure>
-		<video controls muted playsinline preload="metadata" poster="video/warp-and-return.jpg" src="video/warp-and-return.mp4"></video>
+		<video controls muted playsinline preload="none" poster="video/warp-and-return.jpg" width="960" height="540" src="video/warp-and-return.mp4"></video>
 		<figcaption>Warping away and back: the mobs are where they were</figcaption>
 	</figure>
 	<p>Multiplayer made this more interesting. The host owns map state, so when a pickup is collected or a mob dies, the host’s snapshot is the one that counts, and map warps are synced to every player by the host.</p>

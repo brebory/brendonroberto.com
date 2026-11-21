@@ -17,8 +17,9 @@
 <link rel="canonical" href="https://brendonroberto.com/blog/fiber-stats-and-affixes/">
 <link rel="alternate" type="application/rss+xml" title="Brendon Roberto’s blog" href="/blog/feed.xml">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link href="https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300" rel="stylesheet">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="preload" href="/fonts/gentium-book-basic/gentium-book-basic-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/open-sans/open-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/css/normalize.css">
 <link rel="stylesheet" href="/css/post.css">
 <style>
@@ -62,7 +63,7 @@
 	<p>Those feed three resource pools. <b>HP</b> and <b>MP</b> only come back from items, rest and abilities. <b>SP</b>, stamina, refills on its own at a rate set by Wisdom, and it’s what your moves spend. Jumping and the basic attack both cost stamina, through a small <b>action</b> system that any entity can use.</p>
 	<p>Every derived stat is a formula in one file, so balancing means editing one place. Max HP is <code>50 + STR × 10</code>, crit chance is <code>DEX × 0.5 + LCK × 1</code> capped at 100%, and so on.</p>
 	<figure>
-		<video controls muted playsinline preload="metadata" poster="video/stats-and-actions.jpg" src="video/stats-and-actions.mp4"></video>
+		<video controls muted playsinline preload="none" poster="video/stats-and-actions.jpg" width="960" height="540" src="video/stats-and-actions.mp4"></video>
 		<figcaption>The first HP, SP and MP bars, with stamina going into jumps and attacks</figcaption>
 	</figure>
 
@@ -85,7 +86,7 @@ STR 10, sword +3, blessing +15%:
 	<p><b>Crafted affixes</b> go into slots that you control. An item starts with two slots and can be expanded to four with Weaver’s Thread. Anything you put in a slot can be swapped out later.</p>
 	<p>Every affix has a <b>grade</b>: Common, Uncommon, Rare, Epic or Legendary. Each grade’s value range starts at or above the previous grade’s ceiling, so upgrading an affix re-rolls it into a range that’s always better. Drops lean toward lower grades, and every intrinsic affix rolls its grade on its own, so one item can mix a Rare base stat with a Common random affix.</p>
 	<figure>
-		<video controls muted playsinline preload="metadata" poster="video/item-card.jpg" src="video/item-card.mp4"></video>
+		<video controls muted playsinline preload="none" poster="video/item-card.jpg" width="960" height="540" src="video/item-card.mp4"></video>
 		<figcaption>Item cards: grade-colored affixes, crafted slots and a stat comparison</figcaption>
 	</figure>
 
@@ -98,7 +99,7 @@ STR 10, sword +3, blessing +15%:
 	<h2>Seeing it all</h2>
 	<p>None of this is fun if you can’t see it. The inventory now has an equipment column, a stat summary that updates live as you equip, and an item card that pops up on hover. When you hover an item, its card compares against what you have equipped and highlights each stat that would go up in green or down in red. To have something to test with, a random drop spawner on the test map throws one of everything at you.</p>
 	<figure>
-		<video controls muted playsinline preload="metadata" poster="video/equipment-stats.jpg" src="video/equipment-stats.mp4"></video>
+		<video controls muted playsinline preload="none" poster="video/equipment-stats.jpg" width="960" height="540" src="video/equipment-stats.mp4"></video>
 		<figcaption>Equipping drops and watching the stat summary change</figcaption>
 	</figure>
 	<p>Next: the enemies. They can fight back now, but hits don’t feel like much yet.</p>

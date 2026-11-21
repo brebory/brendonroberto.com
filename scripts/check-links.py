@@ -27,7 +27,7 @@ SITE = "https://brendonroberto.com/"
 SKIP_DIRS = {"node_modules", ".git", "scripts", ".vite"}
 # Files that are fine to have without an explicit reference.
 NEVER_UNUSED = (".html", ".css", ".js", ".md", ".json", ".gitignore", ".webmanifest", ".txt", ".xml", ".py")
-IMPLICIT = {"favicon.ico"}
+IMPLICIT = {"favicon.ico", "_headers"}
 
 os.chdir(ROOT)
 missing = 0
